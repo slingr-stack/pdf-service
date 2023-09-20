@@ -1,0 +1,157 @@
+{
+    "label": "PDF",
+    "name": "pdf",
+    "apiVersion": "v1",
+    "configurationType": "GLOBAL",
+    "deployment": {
+        "profiles":[
+            {
+                "name": "default",
+                "label": "Default",
+                "memory": 384,
+                "offHeapMinFactor": 1.5,
+                "description": "388 of memory and 1.5 off heap min factor. Default configuration"
+            },
+            {
+                "name": "bigFiles",
+                "label": "Big size",
+                "memory": 512,
+                "offHeapMinFactor": 2,
+                "description": "512 of memory and 2 off heap min factor. Can process files up to 50MB"
+            },
+            {
+                "name": "hugeFiles",
+                "label": "Huge size",
+                "memory": 1024,
+                "offHeapMinFactor": 5,
+                "description": "1024 of memory and 5 off heap min factor. Can process files up to 200MB"
+            }
+        ],
+        "allowMultipleInstances": true
+    },
+    "icon48": "https://storage.googleapis.com/static.slingrs.io/platform/endpoints/pdf-generator.png",
+    "configurationHelpUrl": "/services-pdf.html",
+    "status": "ACTIVE",
+    "stores": [],
+    "events": [
+        {
+            "label": "PDF Response",
+            "name": "pdfResponse"
+        }
+    ],
+    "functions": [
+        {
+            "label": "Generate PDF",
+            "name": "_generatePdf",
+            "callbacks": [
+                {
+                    "name": "pdfResponse",
+                    "maxExpectedResponses": 1
+                }
+            ]
+        },
+        {
+            "label": "Merge PDF documents",
+            "name": "_mergeDocuments",
+            "callbacks": [
+                {
+                    "name": "pdfResponse",
+                    "maxExpectedResponses": 1
+                }
+            ]
+        },
+        {
+            "label": "Split PDF document",
+            "name": "_splitDocument",
+            "callbacks": [
+                {
+                    "name": "pdfResponse",
+                    "maxExpectedResponses": 1
+                }
+            ]
+        },
+        {
+            "label": "Replace header and footer in pdf files",
+            "name": "_replaceHeaderAndFooter",
+            "callbacks": [
+                {
+                    "name": "pdfResponse",
+                    "maxExpectedResponses": 1
+                }
+            ]
+        },
+        {
+            "label": "Fill Form",
+            "name": "_fillForm",
+            "callbacks": [
+                {
+                    "name": "pdfResponse",
+                    "maxExpectedResponses": 1
+                }
+            ]
+        },
+        {
+            "label": "Replace Images",
+            "name": "_replaceImages",
+            "callbacks": [
+                {
+                    "name": "pdfResponse",
+                    "maxExpectedResponses": 1
+                }
+            ]
+        },
+        {
+            "label": "Add Images",
+            "name": "_addImages",
+            "callbacks": [
+                {
+                    "name": "pdfResponse",
+                    "maxExpectedResponses": 1
+                }
+            ]
+        },
+        {
+            "label": "Convert Pdf To Images",
+            "name": "_convertPdfToImages",
+            "callbacks": [
+                {
+                    "name": "pdfResponse",
+                    "maxExpectedResponses": 1
+                }
+            ]
+        }
+    ],
+    "configuration":[
+        {
+            "label": "Max thread pool",
+            "name": "maxThreadPool",
+            "defaultValue": "3",
+            "type": "text",
+            "required": true,
+            "typeOptions": {
+                "validation": "number"
+            }
+        },
+        {
+            "name": "downloadImages",
+            "label": "Download Images",
+            "type": "buttonsGroup",
+            "required": true,
+            "description": "Set to yes, if your final PDF does not display all images correctly",
+            "defaultValue": "false",
+            "typeOptions": {
+                "allowCustom": false,
+                "possibleValues":[
+                    {
+                        "label":"Yes",
+                        "name":"true"
+                    },
+                    {
+                        "label":"No",
+                        "name":"false"
+                    }
+                ]
+            }
+        }
+    ]
+}
