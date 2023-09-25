@@ -42,7 +42,7 @@
     "functions": [
         {
             "label": "Generate PDF",
-            "name": "_generatePdf",
+            "name": "generatePdf",
             "callbacks": [
                 {
                     "name": "pdfResponse",
@@ -52,7 +52,7 @@
         },
         {
             "label": "Merge PDF documents",
-            "name": "_mergeDocuments",
+            "name": "mergeDocuments",
             "callbacks": [
                 {
                     "name": "pdfResponse",
@@ -62,7 +62,7 @@
         },
         {
             "label": "Split PDF document",
-            "name": "_splitDocument",
+            "name": "splitDocument",
             "callbacks": [
                 {
                     "name": "pdfResponse",
@@ -72,7 +72,7 @@
         },
         {
             "label": "Replace header and footer in pdf files",
-            "name": "_replaceHeaderAndFooter",
+            "name": "replaceHeaderAndFooter",
             "callbacks": [
                 {
                     "name": "pdfResponse",
@@ -82,7 +82,7 @@
         },
         {
             "label": "Fill Form",
-            "name": "_fillForm",
+            "name": "fillForm",
             "callbacks": [
                 {
                     "name": "pdfResponse",
@@ -92,7 +92,7 @@
         },
         {
             "label": "Replace Images",
-            "name": "_replaceImages",
+            "name": "replaceImages",
             "callbacks": [
                 {
                     "name": "pdfResponse",
@@ -102,7 +102,7 @@
         },
         {
             "label": "Add Images",
-            "name": "_addImages",
+            "name": "addImages",
             "callbacks": [
                 {
                     "name": "pdfResponse",
@@ -112,7 +112,7 @@
         },
         {
             "label": "Convert Pdf To Images",
-            "name": "_convertPdfToImages",
+            "name": "convertPdfToImages",
             "callbacks": [
                 {
                     "name": "pdfResponse",

@@ -1,4 +1,4 @@
-package io.slingr.service.pdf;
+package io.slingr.service.pdf.processors;
 
 import com.itextpdf.forms.PdfAcroForm;
 import com.itextpdf.forms.fields.PdfFormField;
@@ -27,36 +27,30 @@ import java.util.Map;
 
 public class PdfFillForm {
 
-    private Logger logger = LoggerFactory.getLogger(PdfFillForm.class);
-
-    private Map<String, String> fonts;
-    private AppLogs appLogger;
+    private final Logger logger = LoggerFactory.getLogger(PdfFillForm.class);
+    private final Map<String, String> fonts;
+    private final AppLogs appLogger;
 
     public PdfFillForm(AppLogs appLogger) {
         fonts = new HashMap<>();
         this.appLogger = appLogger;
     }
 
-
     public File fillForm(Files files, String pdfFileId, Json settings) throws IOException {
         appLogger.info(String.format("Filling up form [%s]", pdfFileId));
-
         InputStream is = null;
         PdfDocument pdfDoc = null;
-        File tmp = null;
+        File tmp;
         try {
             appLogger.info(String.format("Downloading form [%s]", pdfFileId));
             is = files.download(pdfFileId).getFile();
             appLogger.info(String.format("Done downloading form [%s]", pdfFileId));
-
             tmp = File.createTempFile("pdf-filled-" + new Date().getTime(), ".pdf");
             PdfWriter desPdf = new PdfWriter(tmp);
             PdfReader srcPdf = new PdfReader(is);
-
             pdfDoc = new PdfDocument(srcPdf, desPdf);
             PdfAcroForm form = PdfAcroForm.getAcroForm(pdfDoc, true);
             form.setGenerateAppearance(true);
-
             if (settings.contains("data")) {
                 Json settingsData = settings.json("data");
                 for (String givenFormField : settingsData.keys()) {
@@ -83,12 +77,10 @@ public class PdfFillForm {
                                         } catch (Exception ex) {
                                             appLogger.error("Can not copy font. ", ex);
                                         } finally {
-
                                             try {
                                                 if (fontIs != null) {
                                                     fontIs.close();
                                                 }
-
                                             } catch (IOException ioe) {
                                                 appLogger.error("Can not close font. ", ioe);
                                             }
@@ -122,13 +114,11 @@ public class PdfFillForm {
                                     }
                                     formField.setJustification(textAlign);
                                 }
-
                                 boolean readOnly = false;
                                 if (fieldSettings.contains("readOnly")) {
                                     readOnly = fieldSettings.bool("readOnly");
                                 }
                                 formField.setReadOnly(readOnly);
-
                             }
                         }
                     } else {
@@ -136,9 +126,7 @@ public class PdfFillForm {
                     }
                 }
             }
-
             appLogger.info(String.format("Form [%s] was filled up successfully", pdfFileId));
-
             return tmp;
         } catch (Exception ex) {
             appLogger.error(String.format("Can not fill pdf file [%s]: " + ex.getMessage(), pdfFileId), ex);
@@ -156,7 +144,6 @@ public class PdfFillForm {
             }
         }
         return null;
-
     }
 
     private Color hex2Rgb(String colorStr) {
@@ -166,5 +153,4 @@ public class PdfFillForm {
                 Integer.valueOf(colorStr.substring(3, 5), 16),
                 Integer.valueOf(colorStr.substring(5, 7), 16));
     }
-
 }

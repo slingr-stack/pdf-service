@@ -1,6 +1,5 @@
-package io.slingr.service.pdf;
+package io.slingr.service.pdf.processors;
 
-import io.slingr.services.utils.Json;
 import io.slingr.services.ws.exchange.FunctionRequest;
 
 import java.util.LinkedList;
@@ -8,7 +7,7 @@ import java.util.Queue;
 
 public class QueuePdf {
 
-    static Queue<FunctionRequest> queue = new LinkedList<>();
+    static final Queue<FunctionRequest> queue = new LinkedList<>();
     private static QueuePdf queueInstance = null;
 
     public static QueuePdf getStreamInstance() {
@@ -30,18 +29,10 @@ public class QueuePdf {
         }
     }
 
-    // Removes a single instance of the specified element from this collection
-    public void remove(Json value) {
-        synchronized (queue) {
-            queue.remove(value);
-        }
-    }
-
     // Retrieves and removes the head of this queue, or returns null if this
     // queue is empty.
     public FunctionRequest poll() {
-        FunctionRequest data = queue.poll();
-        return data;
+        return queue.poll();
     }
 
     // Returns true if this collection contains no elements
@@ -54,5 +45,4 @@ public class QueuePdf {
     public int getTotalSize() {
         return queue.size();
     }
-
 }

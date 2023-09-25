@@ -1,4 +1,4 @@
-package io.slingr.service.pdf;
+package io.slingr.service.pdf.processors;
 
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -15,24 +15,22 @@ import java.util.*;
 
 public class PdfEngine {
 
-    private Logger logger = LoggerFactory.getLogger(PdfEngine.class);
+    private final Logger logger = LoggerFactory.getLogger(PdfEngine.class);
 
-    private String template;
+    private final String template;
     List<String> commandParams;
     private String sourceTmpFile;
     private String targetTmpFile;
-    private String fileName;
+    private final String fileName;
 
-    private String headerTmpFile;
-    private String footerTmpFile;
-
-    private final String TMP_PATH = "/tmp";
+    private final String headerTmpFile;
+    private final String footerTmpFile;
 
 
     public PdfEngine(String tpl, Json settings, boolean downloadImages) throws IOException, TemplateException {
 
         template = tpl;
-        commandParams = new ArrayList();
+        commandParams = new ArrayList<>();
         commandParams.add("/usr/bin/wkhtmltopdf");
 
         if (settings == null) {
@@ -54,7 +52,7 @@ public class PdfEngine {
         }
 
         String orientation = settings.string("orientation");
-        if (StringUtils.isNotBlank(orientation) && orientation.toLowerCase().equals("landscape")) {
+        if (StringUtils.isNotBlank(orientation) && orientation.equalsIgnoreCase("landscape")) {
             commandParams.add("--orientation");
             commandParams.add("Landscape");
         }
@@ -92,32 +90,22 @@ public class PdfEngine {
     }
 
     private String addFileCommandParams(List<String> commandParams, String template, Json data, String command) throws IOException, TemplateException {
-
         String path = null;
-
         if (StringUtils.isNotBlank(template)) {
-
-            Configuration cfg = new Configuration();
-
+            Configuration cfg = new Configuration(Configuration.VERSION_2_3_32);
             if (data != null) {
                 Template tpl = new Template("name", new StringReader(template), cfg);
                 tpl.setAutoFlush(true);
                 StringWriter sw = new StringWriter();
                 tpl.process(data.toMap(), sw);
-
                 template = sw.toString();
-
                 File temp = File.createTempFile("pdf-header-" + Strings.randomUUIDString(), ".html");
                 FileUtils.writeStringToFile(temp, template, "UTF-8");
-
                 path = temp.getAbsolutePath();
                 commandParams.add(command);
                 commandParams.add(path);
             }
-
-
         }
-
         return path;
     }
 
@@ -141,31 +129,31 @@ public class PdfEngine {
     }
 
     public void cleanTmpFiles() {
-        /*if (sourceTmpFile != null) {
-            (new File(sourceTmpFile)).delete();
+        boolean deleteF = false, deleteS = false, deleteT = false, deleteH = false;
+        if (sourceTmpFile != null) {
+            deleteS = (new File(sourceTmpFile)).delete();
         }
         if (targetTmpFile != null) {
-            (new File(targetTmpFile)).delete();
+            deleteT = (new File(targetTmpFile)).delete();
         }
         if (headerTmpFile != null) {
-            (new File(headerTmpFile)).delete();
+            deleteH = (new File(headerTmpFile)).delete();
         }
         if (footerTmpFile != null) {
-            (new File(footerTmpFile)).delete();
-        }*/
+            deleteF = (new File(footerTmpFile)).delete();
+        }
+        if (deleteH && deleteT && deleteF && deleteS) {
+            logger.info("Cleaning temporal files");
+        }
+
+        String TMP_PATH = "/tmp";
         File tmpFolder = new File(TMP_PATH);
         if (tmpFolder.exists() && tmpFolder.isDirectory()) {
-            FilenameFilter filter = new FilenameFilter() {
-                @Override
-                public boolean accept(File dir, String name) {
-                    return name.endsWith(".tmp");
-                }
-            };
+            FilenameFilter filter = (dir, name) -> name.endsWith(".tmp");
             File[] tmpFiles = tmpFolder.listFiles(filter);
             if (tmpFiles != null) {
                 for (File tmpFile : tmpFiles) {
-                    tmpFile.delete();
-                    logger.info("Deleted: " + tmpFile.getName());
+                    if (tmpFile.delete())  logger.info("Deleted: " + tmpFile.getName());
                 }
             }
             logger.info(".tmp files deleted from the /tmp folder.");
@@ -173,5 +161,4 @@ public class PdfEngine {
             logger.info("/tmp folder does not exist or is not a directory.");
         }
     }
-
 }

@@ -24,7 +24,7 @@ import java.util.List;
 
 public class SplitDocumentWorker extends PdfWorker {
 
-    private Logger logger = LoggerFactory.getLogger(SplitDocumentWorker.class);
+    private final Logger logger = LoggerFactory.getLogger(SplitDocumentWorker.class);
 
     public SplitDocumentWorker(Events events, Files files, AppLogs appLogger, FunctionRequest request) {
         super(events, files, appLogger, request);
@@ -32,68 +32,48 @@ public class SplitDocumentWorker extends PdfWorker {
 
     @Override
     public void run() {
-
         Json data = request.getJsonParams();
         String fileId = data.string("fileId");
         Integer interval = data.integer("interval");
-
         if (StringUtils.isBlank(fileId)) {
             throw ServiceException.permanent(ErrorCode.ARGUMENT, "File id can not be empty.");
         } else if (interval == null || interval <= 0) {
             throw ServiceException.permanent(ErrorCode.ARGUMENT, "Interval can not be empty. Should be a positive integer.");
         }
-
         try {
-
             List<File> documents = new ArrayList<>();
-
             PDFMergerUtility merger = new PDFMergerUtility();
             Splitter splitter = new Splitter();
-
             InputStream is = files.download(fileId).getFile();
             PDDocument pdf = PDDocument.load(is);
-
             List<PDDocument> splitDoc = splitter.split(pdf);
-
-            if (splitDoc.size() > 0) {
-
+            if (!splitDoc.isEmpty()) {
                 for (int i = 0; i < splitDoc.size(); i += interval) {
-
-                    int end = (i + interval < splitDoc.size()) ? i + interval : splitDoc.size();
+                    int end = Math.min(i + interval, splitDoc.size());
                     List<PDDocument> sp = splitDoc.subList(i, end);
-
                     PDDocument newDocument = new PDDocument();
                     for (PDDocument page : sp) {
                         merger.appendDocument(newDocument, page);
                         page.close();
                     }
-
                     int number = i / interval;
                     File temp = File.createTempFile("split-doc-" + number, ".pdf");
                     newDocument.save(temp);
                     newDocument.close();
-
                     documents.add(temp);
-
                 }
-
             }
-
             Json splitFiles = Json.list();
-
             for (File doc : documents) {
                 Json fileJson = files.upload(doc.getName(), new FileInputStream(doc), "application/pdf");
                 splitFiles.push(fileJson);
             }
-
             Json res = Json.map();
             res.set("status", "ok");
             res.set("files", splitFiles);
-
             events.send("pdfResponse", res, request.getFunctionId());
-
         } catch (IOException e) {
-            logger.info("Error to load file id " + fileId + ". " + e.getMessage());
+            logger.info(String.format("Error to load file id [%s]. Error: %s",fileId, e.getMessage()));
         }
     }
 }

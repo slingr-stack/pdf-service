@@ -1,6 +1,6 @@
 package io.slingr.service.pdf.workers;
 
-import io.slingr.service.pdf.PdfFilesUtils;
+import io.slingr.service.pdf.processors.PdfFilesUtils;
 import io.slingr.services.services.AppLogs;
 import io.slingr.services.services.Events;
 import io.slingr.services.services.Files;
@@ -13,8 +13,6 @@ import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.apache.pdfbox.util.Matrix;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -25,57 +23,39 @@ import java.util.UUID;
 
 public class AddImagesWorker extends PdfImageWorker {
 
-    private Logger logger = LoggerFactory.getLogger(AddImagesWorker.class);
-
     public AddImagesWorker(Events events, Files files, AppLogs appLogger, FunctionRequest request) {
         super(events, files, appLogger, request);
     }
 
-
     @Override
     public void run() {
-
         Json data = request.getJsonParams();
-
         String requestId = request.getFunctionId();
         String fileId = data.string("fileId");
         Json res = Json.map();
-
         try {
             InputStream is = files.download(fileId).getFile();
             PDDocument pdf = PDDocument.load(is);
-
             Json settings = data.json("settings");
-
             if (settings.contains("images")) {
                 List<Json> settingsImages = settings.jsons("images");
-
                 for (Json image : settingsImages) {
                     if (image.contains("pageIndex") && image.contains("fileId")) {
-
                         int pageIndex = image.integer("pageIndex");
-
                         if (pageIndex < pdf.getNumberOfPages()) {
-
                             String imageId = image.string("fileId");
-
                             PDPage page = pdf.getPage(pageIndex);
-
                             DownloadedFile downloadedFile = files.download(imageId);
                             InputStream imageIs = downloadedFile.getFile();
-
                             Json imageMetadata = files.metadata(imageId);
                             String extension = ".jpg";
                             if (imageMetadata.contains("contentType") && imageMetadata.string("contentType").equals("image/png")) {
                                 extension = ".png";
                             }
-
                             File img = File.createTempFile("pdf-img-" + UUID.randomUUID(), extension);
                             copyInputStreamToFile(imageIs, img);
-
                             PDImageXObject pdImage = PDImageXObject.createFromFileByContent(img, pdf);
                             PDPageContentStream contentStream = new PDPageContentStream(pdf, page, PDPageContentStream.AppendMode.APPEND, true);
-
                             if (image.contains("fullPage") && image.bool("fullPage")) {
                                 PDRectangle mediaBox = page.getMediaBox();
                                 float pageWidth = mediaBox.getWidth();
@@ -84,10 +64,10 @@ public class AddImagesWorker extends PdfImageWorker {
                                 float scaleX = pageWidth / pdImage.getWidth();
                                 float scaleY = pageHeight / pdImage.getHeight();
                                 float scale = Math.max(scaleX, scaleY);
-                                // calculate the position of the image on the top left corner of the page
+                                // calculate the position of the image in the top left corner of the page
                                 float x = 0;
                                 float y = pageHeight - (pdImage.getHeight() * scale);
-                                // transformation to flipped the image vertically so it looks good
+                                // transformation to flip the image vertically, so it looks good
                                 Matrix mt = new Matrix(1f, 0f, 0f, -1f, page.getCropBox().getLowerLeftX(), page.getCropBox().getUpperRightY());
                                 contentStream.transform(mt);
                                 // create a new content stream and draw the image
@@ -100,31 +80,23 @@ public class AddImagesWorker extends PdfImageWorker {
                                 contentStream.drawImage(pdImage, x, y, width, height);
                             }
                             contentStream.close();
-
                         }
                     }
                 }
             }
-
             String fileName = PdfFilesUtils.getFileName("pdf", settings);
             File temp = File.createTempFile(fileName, ".pdf");
             pdf.save(temp);
             pdf.close();
-
             Json fileJson = files.upload(fileName, new FileInputStream(temp), "application/pdf");
-
             res.set("status", "ok");
             res.set("file", fileJson);
-
             events.send("pdfResponse", res, requestId);
         } catch (IOException e) {
-
             appLogger.info("Can not generate PDF, I/O exception", e);
             res.set("status", "error");
             res.set("message", "Failed to create file");
-
             events.send("pdfResponse", res, requestId);
         }
-
     }
 }

@@ -3,6 +3,9 @@ package io.slingr.service.pdf;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
+import io.slingr.service.pdf.processors.PdfEngine;
+import io.slingr.service.pdf.processors.PdfFilesUtils;
+import io.slingr.service.pdf.processors.QueuePdf;
 import io.slingr.service.pdf.workers.*;
 import io.slingr.services.Service;
 import io.slingr.services.exceptions.ErrorCode;
@@ -37,15 +40,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
-@SlingrService(name = "pdf", functionPrefix = "_")
+@SlingrService(name = "pdf")
 public class Pdf extends Service {
 
-    private Logger logger = LoggerFactory.getLogger(Pdf.class);
+    private static final String SERVICE_NAME = "pdf";
+    private final Logger logger = LoggerFactory.getLogger(Pdf.class);
 
     @ApplicationLogger
-    protected AppLogs appLogger;
+    protected AppLogs appLogs;
 
     @ServiceProperty
     private String maxThreadPool;
@@ -53,20 +58,13 @@ public class Pdf extends Service {
     @ServiceProperty
     private boolean downloadImages;
 
-    private final int MAX_THREADS_POOL = 3;
-
     protected ExecutorService executorService;
 
     public void serviceStarted() {
-
-        int maxTreads = MAX_THREADS_POOL;
-        try {
-            maxTreads = Integer.valueOf(maxThreadPool);
-        } catch (Exception ex) {
-        }
-
+        logger.info(String.format("Initializing service [%s]", SERVICE_NAME));
+        appLogs.info(String.format("Initializing service [%s]", SERVICE_NAME));
+        int maxTreads = Integer.parseInt(maxThreadPool);
         this.executorService = Executors.newFixedThreadPool(maxTreads);
-
         if (!properties().isLocalDeployment()) {
             try {
                 PdfFilesUtils pdfFilesUtils = new PdfFilesUtils();
@@ -77,133 +75,13 @@ public class Pdf extends Service {
                 logger.error(ex.getMessage(), ex);
             }
         }
-
-
-        Executors.newSingleThreadScheduledExecutor().execute(() -> {
-            while (true) {
-                generateAutoPdf();
-                try {
-                    Thread.sleep(3000);
-                } catch (InterruptedException e) {
-                    logger.info("Generate pdf thread was interrupted.");
-                }
+        ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
+        executorService.scheduleAtFixedRate(() -> {
+            while (QueuePdf.getStreamInstance().getTotalSize() > 0) {
+                createPdf(QueuePdf.getStreamInstance().poll());
             }
-        });
-
-    }
-
-    @ServiceFunction(name = "_generatePdf")
-    public Json generatePdf(FunctionRequest request) {
-        logger.info("Creating pdf from template");
-
-        Json data = request.getJsonParams();
-        Json resp = Json.map();
-        String template = data.string("template");
-        if (StringUtils.isBlank(template)) {
-            throw ServiceException.permanent(ErrorCode.ARGUMENT, "Template can not be empty.");
-        }
-        Json jData = data.json("data");
-        if (jData == null) {
-            jData = Json.map();
-        }
-
-
-        Configuration cfg = new Configuration();
-        Template tpl;
-        StringWriter sw = null;
-        try {
-            tpl = new Template("name", new StringReader(template), cfg);
-            tpl.setAutoFlush(true);
-            sw = new StringWriter();
-            tpl.process(jData.toMap(), sw);
-            String swString = sw.toString();
-            if (downloadImages) {
-                Map<String, String> urlImgs = extractImageUrlsFromHtml(swString);
-                for (Map.Entry<String, String> entry : urlImgs.entrySet()) {
-                    swString = swString.replace(entry.getKey(), entry.getValue());
-                }
-            }
-            data.set("tpl", swString);
-            QueuePdf.getStreamInstance().add(request);
-            resp.set("status", "ok");
-        } catch (IOException e) {
-            logger.error("Can not generate PDF, I/O exception", e);
-            throw ServiceException.permanent(ErrorCode.GENERAL, "Failed to create file", e);
-        } catch (TemplateException e) {
-            logger.error("Can not generate PDF, template exception", e);
-            throw ServiceException.permanent(ErrorCode.GENERAL, "Failed to parse template", e);
-        } finally {
-            try {
-                if (sw != null) {
-                    sw.flush();
-                    sw.close();
-                }
-            } catch (IOException ioe) {
-                logger.info("String writer can not be closed.");
-            }
-        }
-
-        return resp;
-    }
-
-    /**
-     * Extracts image URLs from the provided HTML content.
-     *
-     * @param html The HTML content from which to extract image URLs.
-     * @return A map containing the original image URLs as keys and their local paths as values.
-     */
-    private Map<String, String> extractImageUrlsFromHtml(String html) {
-        Map<String, String> imageUrls = new LinkedHashMap<>();
-        Document document = Jsoup.parse(html);
-        Elements imgElements = document.select("img");
-        for (Element imgElement : imgElements) {
-            String url = imgElement.attr("src");
-            imageUrls.put(url, "file:///" + downloadImageToTmp(url));
-        }
-        return imageUrls;
-    }
-
-    /**
-     * Downloads an image from the provided URL to a temporary location.
-     *
-     * @param imageUrl The URL of the image to download.
-     * @return The local path to the downloaded image.
-     */
-    private String downloadImageToTmp(String imageUrl) {
-        RestClient restClient = RestClient.builder(imageUrl);
-        DownloadedFile file = restClient.download();
-        File localFile = FilesUtils.copyInputStreamToTemporaryFile("", file.getFile());
-        return localFile.getPath();
-    }
-
-
-
-    @ServiceFunction(name = "_fillForm")
-    public Json fillForm(FunctionRequest request) {
-        FillFormWorker worker = new FillFormWorker(events(), files(), appLogger, request);
-        this.executorService.submit(worker);
-        return Json.map();
-    }
-
-    @ServiceFunction(name = "_mergeDocuments")
-    public Json mergeDocuments(FunctionRequest request) {
-        MergeDocumentsWorker worker = new MergeDocumentsWorker(events(), files(), appLogger, request);
-        this.executorService.submit(worker);
-        return Json.map().set("status", "ok");
-    }
-
-    @ServiceFunction(name = "_splitDocument")
-    public Json splitDocument(FunctionRequest request) {
-        SplitDocumentWorker worker = new SplitDocumentWorker(events(), files(), appLogger, request);
-        this.executorService.submit(worker);
-        return Json.map().set("status", "ok");
-    }
-
-    @ServiceFunction(name = "_replaceHeaderAndFooter")
-    public Json replaceHeaderAndFooter(FunctionRequest request) {
-        ReplaceHeaderAndFooterWorker worker = new ReplaceHeaderAndFooterWorker(events(), files(), appLogger, request);
-        this.executorService.submit(worker);
-        return Json.map().set("status", "ok");
+        }, 0, 3, TimeUnit.SECONDS);
+        logger.info(String.format("Configured service [%s]: maxThreadPool - [%d], forceDownloadImages - [%b]", SERVICE_NAME,  maxTreads, downloadImages));
     }
 
     private void createPdf(FunctionRequest req) {
@@ -213,7 +91,7 @@ public class Pdf extends Service {
     private void createPdf(FunctionRequest req, boolean retry) {
         logger.info("Creating pdf file");
         Json res = Json.map();
-        InputStream is = null;
+        InputStream is;
         try {
             Json data = req.getJsonParams();
             String template = data.string("tpl");
@@ -256,22 +134,138 @@ public class Pdf extends Service {
         logger.info("Done sending [pdfResponse] event to the app");
     }
 
-    @ServiceFunction(name = "_replaceImages")
+    @ServiceFunction(name = "generatePdf")
+    public Json generatePdf(FunctionRequest request) {
+        logger.info("Creating pdf from template");
+        Json data = request.getJsonParams();
+        Json resp = Json.map();
+
+        String template = data.string("template");
+        if (StringUtils.isBlank(template)) {
+            throw ServiceException.permanent(ErrorCode.ARGUMENT, "Template can not be empty.");
+        }
+        Json jData = data.json("data");
+        if (jData == null) {
+            jData = Json.map();
+        }
+        Configuration cfg = new Configuration(Configuration.VERSION_2_3_32);
+        Template tpl;
+        StringWriter sw = null;
+        try {
+            tpl = new Template("name", new StringReader(template), cfg);
+            tpl.setAutoFlush(true);
+            sw = new StringWriter();
+            tpl.process(jData.toMap(), sw);
+            String swString = sw.toString();
+            if (downloadImages) {
+                Map<String, String> urlImgs = extractImageUrlsFromHtml(swString);
+                for (Map.Entry<String, String> entry : urlImgs.entrySet()) {
+                    swString = swString.replace(entry.getKey(), entry.getValue());
+                }
+            }
+            data.set("tpl", swString);
+            QueuePdf.getStreamInstance().add(request);
+            resp.set("status", "ok");
+        } catch (IOException e) {
+            logger.error("Can not generate pdf, i/o exception", e);
+            throw ServiceException.permanent(ErrorCode.GENERAL, "Failed to create file", e);
+        } catch (TemplateException e) {
+            logger.error("Can not generate pdf, template exception", e);
+            throw ServiceException.permanent(ErrorCode.GENERAL, "Failed to parse template", e);
+        } finally {
+            try {
+                if (sw != null) {
+                    sw.flush();
+                    sw.close();
+                }
+            } catch (IOException ioe) {
+                logger.info("String writer can not be closed.");
+            }
+        }
+        return resp;
+    }
+
+    /**
+     * Extracts image URLs from the provided HTML content.
+     *
+     * @param html The HTML content from which to extract image URLs.
+     * @return A map containing the original image URLs as keys and their local paths as values.
+     */
+    private Map<String, String> extractImageUrlsFromHtml(String html) {
+        Map<String, String> imageUrls = new LinkedHashMap<>();
+        Document document = Jsoup.parse(html);
+        Elements imgElements = document.select("img");
+        for (Element imgElement : imgElements) {
+            String url = imgElement.attr("src");
+            imageUrls.put(url, "file:///" + downloadImageToTmp(url));
+        }
+        return imageUrls;
+    }
+
+    /**
+     * Downloads an image from the provided URL to a temporary location.
+     *
+     * @param imageUrl The URL of the image to download.
+     * @return The local path to the downloaded image.
+     */
+    private String downloadImageToTmp(String imageUrl) {
+        RestClient restClient = RestClient.builder(imageUrl);
+        DownloadedFile file = restClient.download();
+        File localFile = FilesUtils.copyInputStreamToTemporaryFile("", file.getFile());
+        return localFile.getPath();
+    }
+
+    @ServiceFunction(name = "mergeDocuments")
+    public Json mergeDocuments(FunctionRequest request) {
+        logger.info(String.format("Merging documents from service [%s]", SERVICE_NAME));
+        MergeDocumentsWorker worker = new MergeDocumentsWorker(events(), files(), appLogs, request);
+        this.executorService.submit(worker);
+        return Json.map().set("status", "ok");
+    }
+
+    @ServiceFunction(name = "splitDocument")
+    public Json splitDocument(FunctionRequest request) {
+        logger.info(String.format("Splitting documents from service [%s]", SERVICE_NAME));
+        SplitDocumentWorker worker = new SplitDocumentWorker(events(), files(), appLogs, request);
+        this.executorService.submit(worker);
+        return Json.map().set("status", "ok");
+    }
+
+    @ServiceFunction(name = "replaceHeaderAndFooter")
+    public Json replaceHeaderAndFooter(FunctionRequest request) {
+        logger.info(String.format("Replacing headers and footers from service [%s]", SERVICE_NAME));
+        ReplaceHeaderAndFooterWorker worker = new ReplaceHeaderAndFooterWorker(events(), files(), appLogs, request);
+        this.executorService.submit(worker);
+        return Json.map().set("status", "ok");
+    }
+
+    @ServiceFunction(name = "fillForm")
+    public Json fillForm(FunctionRequest request) {
+        logger.info(String.format("Filling forms from service [%s]", SERVICE_NAME));
+        FillFormWorker worker = new FillFormWorker(events(), files(), appLogs, request);
+        this.executorService.submit(worker);
+        return Json.map();
+    }
+
+    @ServiceFunction(name = "replaceImages")
     public Json replaceImages(FunctionRequest request) {
-        ReplaceImagesWorker worker = new ReplaceImagesWorker(events(), files(), appLogger, request);
+        logger.info(String.format("Replacing images from service [%s]", SERVICE_NAME));
+        ReplaceImagesWorker worker = new ReplaceImagesWorker(events(), files(), appLogs, request);
         this.executorService.submit(worker);
         return Json.map();
     }
 
-    @ServiceFunction(name = "_addImages")
+    @ServiceFunction(name = "addImages")
     public Json addImages(FunctionRequest request) {
-        AddImagesWorker worker = new AddImagesWorker(events(), files(), appLogger, request);
+        logger.info(String.format("Adding images from service [%s]", SERVICE_NAME));
+        AddImagesWorker worker = new AddImagesWorker(events(), files(), appLogs, request);
         this.executorService.submit(worker);
         return Json.map();
     }
 
-    @ServiceFunction(name = "_convertPdfToImages")
-    public Json convertPdfToImages(FunctionRequest request) throws IOException {
+    @ServiceFunction(name = "convertPdfToImages")
+    public Json convertPdfToImages(FunctionRequest request) {
+        logger.info(String.format("Converting pdf to images from service [%s]", SERVICE_NAME));
         Json resp = Json.map();
         Json data = request.getJsonParams();
         Json settings = data.json("settings");
@@ -287,7 +281,7 @@ public class Pdf extends Service {
                 DownloadedFile file = files().download(pdfId.toString());
                 List<String> ids = new ArrayList<>();
                 try {
-                    logger.info("Converting PDF to images");
+                    logger.info("Converting pdf to images");
                     PDDocument document = PDDocument.load(file.getFile());
                     PDFRenderer pdfRenderer = new PDFRenderer(document);
                     for (int page = 0; page < document.getNumberOfPages(); ++page) {
@@ -299,14 +293,16 @@ public class Pdf extends Service {
                         Json response = files().upload(fileName, in, "image/jpeg");
                         ids.add(response.string("fileId"));
                         in.close();
-                        tempFile.delete();
+                        if (tempFile.delete()) {
+                            appLogs.error("PDF converted successfully to images");
+                        }
                     }
-                    logger.info("PDF converted successfully to images");
+                    logger.info("Pdf converted successfully to images");
                     convertedImages.set(pdfId.toString(), ids);
                     document.close();
                 } catch (IOException e) {
-                    appLogger.error("Can not convert PDF, I/O exception", e);
-                    logger.error("Can not convert PDF, I/O exception", e);
+                    appLogs.error("Can not convert PDF, I/O exception", e);
+                    logger.error("Can not convert pdf, i/o exception", e);
                     throw ServiceException.permanent(ErrorCode.GENERAL, "Failed to convert pdf to images", e);
                 }
             }
@@ -315,16 +311,6 @@ public class Pdf extends Service {
             resp.set("config", settings);
             events().send("pdfResponse", resp, request.getFunctionId());
         });
-
         return Json.map().set("status", "ok");
     }
-
-    private final ReentrantLock pdfLock = new ReentrantLock();
-
-    private void generateAutoPdf() {
-        while (QueuePdf.getStreamInstance().getTotalSize() > 0) {
-            createPdf(QueuePdf.getStreamInstance().poll());
-        }
-    }
-
 }
