@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>io.slingr.service</groupId>
+    <groupId>slingr.service</groupId>
     <artifactId>pdf</artifactId>
     <version>1.0.0</version>
     <name>SLINGR - PDF service</name>
@@ -24,7 +24,7 @@
         <!-- SLINGR Service Framework -->
         <!--suppress VulnerableLibrariesLocal -->
         <dependency>
-            <groupId>io.slingr.services</groupId>
+            <groupId>slingr.services</groupId>
             <artifactId>slingr-services</artifactId>
             <version>${slingr.slingr-service.version}</version>
         </dependency>
@@ -62,14 +62,14 @@
         <repository>
             <id>github</id>
             <name>GitHub slingr-stack Apache Maven Packages</name>
-            <url>https://maven.pkg.github.com/slingr-stack/platform-sdk-services</url>
+            <url>https://maven.pkg.github.com/slingr-stack/pdf-service</url>
         </repository>
     </repositories>
     <distributionManagement>
         <repository>
             <id>github</id>
             <name>GitHub slingr-stack Apache Maven Packages</name>
-            <url>https://maven.pkg.github.com/slingr-stack/platform-sdk-services</url>
+            <url>https://maven.pkg.github.com/slingr-stack/pdf-service</url>
         </repository>
     </distributionManagement>
     <build>
