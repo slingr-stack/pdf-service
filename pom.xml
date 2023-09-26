@@ -59,33 +59,14 @@
             <url>https://repo1.maven.org/maven2/</url>
             <layout>default</layout>
         </repository>
-        <repository>
-            <id>slingrRepo.release</id>
-            <url>https://repo.slingrs.io/release</url>
-            <releases>
-                <enabled>true</enabled>
-                <checksumPolicy>fail</checksumPolicy>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>slingrRepo.snapshot</id>
-            <url>https://repo.slingrs.io/snapshot</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-                <checksumPolicy>warn</checksumPolicy>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>jitpack.io</id>
-            <url>https://jitpack.io</url>
-        </repository>
     </repositories>
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub slingr-stack Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/slingr-stack/platform-sdk-services</url>
+        </repository>
+    </distributionManagement>
     <build>
         <plugins>
             <plugin>
