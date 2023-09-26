@@ -18,7 +18,7 @@
         <project.build.s3-wagon.version>3.3</project.build.s3-wagon.version>
         <project.build.shade.version>2.4.1</project.build.shade.version>
         <!-- Other properties -->
-        <build.main-class>io.slingr.service.pdfGenerator.Runner</build.main-class>
+        <build.main-class>io.slingr.service.pdf.Runner</build.main-class>
     </properties>
     <dependencies>
         <!-- SLINGR Service Framework -->
