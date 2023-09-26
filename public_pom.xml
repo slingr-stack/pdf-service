@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>slingr.service</groupId>
+    <groupId>io.github.slingr-stack</groupId>
     <artifactId>pdf</artifactId>
     <version>1.0.0</version>
     <name>SLINGR - PDF service</name>
@@ -24,7 +24,7 @@
         <!-- SLINGR Service Framework -->
         <!--suppress VulnerableLibrariesLocal -->
         <dependency>
-            <groupId>slingr.services</groupId>
+            <groupId>io.github.slingr-stack</groupId>
             <artifactId>slingr-services</artifactId>
             <version>1.0</version>
         </dependency>
@@ -60,20 +60,16 @@
             <layout>default</layout>
         </repository>
         <repository>
-            <id>artifact-registry</id>
-            <url>artifactregistry://us-central1-maven.pkg.dev/slingr-development/slingr</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
+            <id>clojars</id>
+            <name>Clojars repository</name>
+            <url>https://clojars.org/repo</url>
         </repository>
     </repositories>
     <distributionManagement>
         <repository>
-            <id>artifact-registry</id>
-            <url>artifactregistry://us-central1-maven.pkg.dev/slingr-development/slingr</url>
+            <id>clojars</id>
+            <name>Clojars repository</name>
+            <url>https://clojars.org/repo</url>
         </repository>
     </distributionManagement>
     <build>
@@ -131,12 +127,5 @@
                 </executions>
             </plugin>
         </plugins>
-        <extensions>
-            <extension>
-                <groupId>com.google.cloud.artifactregistry</groupId>
-                <artifactId>artifactregistry-maven-wagon</artifactId>
-                <version>2.2.0</version>
-            </extension>
-        </extensions>
     </build>
 </project>
