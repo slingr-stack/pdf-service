@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>io.github.slingr-stack</groupId>
+    <groupId>io.slingr.services</groupId>
     <artifactId>pdf</artifactId>
     <version>1.0-SNAPSHOT</version>
     <name>SLINGR - PDF service</name>
     <description>Default component to convert html to pdf or images of the Slingr platform</description>
     <packaging>jar</packaging>
     <properties>
-        <!-- SLINGR versions -->
-        <slingr.slingr-service.version>1.0-SNAPSHOT</slingr.slingr-service.version>
+        <!-- Slingr versions -->
+        <slingr.slingr-service.version>2.0-SNAPSHOT</slingr.slingr-service.version>
         <!-- Build properties -->
         <jdk.version>11</jdk.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.build.compiler.version>2.5.1</project.build.compiler.version>
         <project.build.source.version>3.0.1</project.build.source.version>
-        <project.build.s3-wagon.version>3.3</project.build.s3-wagon.version>
         <project.build.shade.version>2.4.1</project.build.shade.version>
+        <project.build.s3-wagon.version>3.3</project.build.s3-wagon.version>
         <!-- Other properties -->
         <build.main-class>io.slingr.service.pdf.Runner</build.main-class>
     </properties>
@@ -24,9 +24,9 @@
         <!-- SLINGR Service Framework -->
         <!--suppress VulnerableLibrariesLocal -->
         <dependency>
-            <groupId>io.github.slingr-stack</groupId>
+            <groupId>io.slingr.services</groupId>
             <artifactId>slingr-services</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${slingr.slingr-service.version}</version>
         </dependency>
         <!-- PDF libraries -->
         <dependency>
@@ -60,17 +60,37 @@
             <layout>default</layout>
         </repository>
         <repository>
-            <id>clojars</id>
-            <name>Clojars repository</name>
-            <url>https://clojars.org/repo</url>
+            <id>slingrRepo.release</id>
+            <url>https://repo.slingrs.io/release</url>
+            <releases>
+                <enabled>true</enabled>
+                <checksumPolicy>fail</checksumPolicy>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>slingrRepo.snapshot</id>
+            <url>https://repo.slingrs.io/snapshot</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+                <checksumPolicy>warn</checksumPolicy>
+            </snapshots>
         </repository>
     </repositories>
     <distributionManagement>
         <repository>
-            <id>clojars</id>
-            <name>Clojars repository</name>
-            <url>https://clojars.org/repo</url>
+            <id>slingrRepo.write.release</id>
+            <url>gs://repo.slingrs.io/release</url>
         </repository>
+        <snapshotRepository>
+            <id>slingrRepo.write.snapshot</id>
+            <url>gs://repo.slingrs.io/snapshot</url>
+        </snapshotRepository>
     </distributionManagement>
     <build>
         <plugins>
@@ -127,5 +147,12 @@
                 </executions>
             </plugin>
         </plugins>
+        <extensions>
+            <extension>
+                <groupId>net.anzix.aws</groupId>
+                <artifactId>s3-maven-wagon</artifactId>
+                <version>${project.build.s3-wagon.version}</version>
+            </extension>
+        </extensions>
     </build>
 </project>
