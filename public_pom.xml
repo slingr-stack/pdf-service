@@ -5,7 +5,7 @@
     <artifactId>pdf</artifactId>
     <version>1.0-SNAPSHOT</version>
     <name>SLINGR - PDF service</name>
-    <description>Default component to manage a connection Http to request external service of the Slingr platform</description>
+    <description>Default component to convert html to pdf or images of the Slingr platform</description>
     <packaging>jar</packaging>
     <properties>
         <!-- SLINGR versions -->
