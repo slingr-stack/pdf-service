@@ -81,6 +81,11 @@
                 <checksumPolicy>warn</checksumPolicy>
             </snapshots>
         </repository>
+        <repository>
+            <id>clojars</id>
+            <name>Clojars repository</name>
+            <url>https://clojars.org/repo</url>
+        </repository>
     </repositories>
     <distributionManagement>
         <repository>
@@ -88,8 +93,9 @@
             <url>gs://repo.slingrs.io/release</url>
         </repository>
         <snapshotRepository>
-            <id>slingrRepo.write.snapshot</id>
-            <url>gs://repo.slingrs.io/snapshot</url>
+            <id>clojars</id>
+            <name>Clojars repository</name>
+            <url>https://clojars.org/repo</url>
         </snapshotRepository>
     </distributionManagement>
     <build>
