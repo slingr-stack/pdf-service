@@ -61,7 +61,7 @@
         </repository>
         <repository>
             <id>slingrRepo.release</id>
-            <url>https://repo.slingrs.io/release</url>
+            <url>http://repo.slingrs.io/release</url>
             <releases>
                 <enabled>true</enabled>
                 <checksumPolicy>fail</checksumPolicy>
@@ -72,7 +72,7 @@
         </repository>
         <repository>
             <id>slingrRepo.snapshot</id>
-            <url>https://repo.slingrs.io/snapshot</url>
+            <url>http://repo.slingrs.io/snapshot</url>
             <releases>
                 <enabled>false</enabled>
             </releases>
@@ -81,11 +81,6 @@
                 <checksumPolicy>warn</checksumPolicy>
             </snapshots>
         </repository>
-        <repository>
-            <id>clojars</id>
-            <name>Clojars repository</name>
-            <url>https://clojars.org/repo</url>
-        </repository>
     </repositories>
     <distributionManagement>
         <repository>
@@ -93,16 +88,9 @@
             <url>gs://repo.slingrs.io/release</url>
         </repository>
         <snapshotRepository>
-            <id>clojars</id>
-            <name>Clojars repository</name>
-            <url>https://clojars.org/repo</url>
-        </snapshotRepository>
-        <!--
-        <snapshotRepository>
             <id>slingrRepo.write.snapshot</id>
             <url>gs://repo.slingrs.io/snapshot</url>
         </snapshotRepository>
-        -->
     </distributionManagement>
     <build>
         <plugins>
@@ -116,8 +104,10 @@
                     <encoding>${project.build.sourceEncoding}</encoding>
                 </configuration>
             </plugin>
-            <!-- This plugin is used to generate the JAR with all the dependencies, which is needed
-            when deploying the service in the platform (not development mode). -->
+            <!--
+            This plugin is use to generate the JAR with all the dependencies, which is needed
+            when deploying the service in the platform (not development mode).
+            -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
@@ -137,7 +127,7 @@
                         <transformer implementation="org.apache.maven.plugins.shade.resource.ApacheNoticeResourceTransformer">
                             <addHeader>false</addHeader>
                         </transformer>
-                        <transformer implementation="org.apache.maven.plugins.shade.resource.ApacheLicenseResourceTransformer"/>
+                        <transformer implementation="org.apache.maven.plugins.shade.resource.ApacheLicenseResourceTransformer"></transformer>
                     </transformers>
                     <filters>
                         <filter>
@@ -159,12 +149,5 @@
                 </executions>
             </plugin>
         </plugins>
-        <extensions>
-            <extension>
-                <groupId>net.anzix.aws</groupId>
-                <artifactId>s3-maven-wagon</artifactId>
-                <version>${project.build.s3-wagon.version}</version>
-            </extension>
-        </extensions>
     </build>
 </project>
