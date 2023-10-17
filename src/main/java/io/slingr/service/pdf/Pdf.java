@@ -53,10 +53,10 @@ public class Pdf extends Service {
     protected AppLogs appLogs;
 
     @ServiceProperty
-    private String maxThreadPool;
+    private String maxThreadPool = "3";
 
     @ServiceProperty
-    private boolean downloadImages;
+    private boolean downloadImages = true;
 
     protected ExecutorService executorService;
 
