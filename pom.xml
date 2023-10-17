@@ -24,7 +24,7 @@
         <!-- SLINGR Service Framework -->
         <!--suppress VulnerableLibrariesLocal -->
         <dependency>
-            <groupId>io.slingr.services</groupId>
+            <groupId>io.github.slingr-stack</groupId>
             <artifactId>slingr-services</artifactId>
             <version>${slingr.slingr-service.version}</version>
         </dependency>
