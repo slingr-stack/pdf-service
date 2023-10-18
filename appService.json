@@ -125,7 +125,7 @@
         {
             "label": "Max thread pool",
             "name": "maxThreadPool",
-            "defaultValue": "3",
+            "defaultValue": 3,
             "type": "text",
             "required": true,
             "typeOptions": {

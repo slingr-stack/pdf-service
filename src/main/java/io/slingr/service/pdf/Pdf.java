@@ -53,7 +53,7 @@ public class Pdf extends Service {
     private Json properties;
 
     @ServiceProperty
-    private int maxThreadPool;
+    private String maxThreadPool;
 
     @ServiceProperty
     private boolean downloadImages;
@@ -63,8 +63,10 @@ public class Pdf extends Service {
     public void serviceStarted() {
         logger.info(String.format("Initializing service [%s]", SERVICE_NAME));
         appLogs.info(String.format("Initializing service [%s]", SERVICE_NAME));
-        if (maxThreadPool==0) maxThreadPool = 3;
-        this.executorService = Executors.newFixedThreadPool(maxThreadPool);
+        int maxThread;
+        if (maxThreadPool==null) maxThread = 3;
+        else  maxThread = Integer.parseInt(maxThreadPool);
+        this.executorService = Executors.newFixedThreadPool(maxThread);
         if (!properties().isLocalDeployment()) {
             try {
                 PdfFilesUtils pdfFilesUtils = new PdfFilesUtils();
@@ -82,7 +84,7 @@ public class Pdf extends Service {
             }
         }, 0, 3, TimeUnit.SECONDS);
         logger.debug(String.format("Properties [%s] for service [%s]", properties.toPrettyString(), SERVICE_NAME));
-        logger.info(String.format("Configured service [%s]: maxThreadPool - [%d], forceDownloadImages - [%b]", SERVICE_NAME,  maxThreadPool, downloadImages));
+        logger.info(String.format("Configured service [%s]: maxThreadPool - [%s], forceDownloadImages - [%b]", SERVICE_NAME,  maxThreadPool, downloadImages));
     }
 
     private void createPdf(FunctionRequest req) {
