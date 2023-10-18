@@ -10,10 +10,7 @@ import io.slingr.service.pdf.workers.*;
 import io.slingr.services.Service;
 import io.slingr.services.exceptions.ErrorCode;
 import io.slingr.services.exceptions.ServiceException;
-import io.slingr.services.framework.annotations.ApplicationLogger;
-import io.slingr.services.framework.annotations.ServiceFunction;
-import io.slingr.services.framework.annotations.ServiceProperty;
-import io.slingr.services.framework.annotations.SlingrService;
+import io.slingr.services.framework.annotations.*;
 import io.slingr.services.services.AppLogs;
 import io.slingr.services.services.rest.DownloadedFile;
 import io.slingr.services.services.rest.RestClient;
@@ -52,19 +49,22 @@ public class Pdf extends Service {
     @ApplicationLogger
     protected AppLogs appLogs;
 
-    @ServiceProperty
-    private String maxThreadPool = "3";
+    @ServiceConfiguration
+    private Json properties;
 
     @ServiceProperty
-    private boolean downloadImages = true;
+    private int maxThreadPool;
+
+    @ServiceProperty
+    private boolean downloadImages;
 
     protected ExecutorService executorService;
 
     public void serviceStarted() {
         logger.info(String.format("Initializing service [%s]", SERVICE_NAME));
         appLogs.info(String.format("Initializing service [%s]", SERVICE_NAME));
-        int maxTreads = Integer.parseInt(maxThreadPool);
-        this.executorService = Executors.newFixedThreadPool(maxTreads);
+        if (maxThreadPool==0) maxThreadPool = 3;
+        this.executorService = Executors.newFixedThreadPool(maxThreadPool);
         if (!properties().isLocalDeployment()) {
             try {
                 PdfFilesUtils pdfFilesUtils = new PdfFilesUtils();
@@ -81,7 +81,8 @@ public class Pdf extends Service {
                 createPdf(QueuePdf.getStreamInstance().poll());
             }
         }, 0, 3, TimeUnit.SECONDS);
-        logger.info(String.format("Configured service [%s]: maxThreadPool - [%d], forceDownloadImages - [%b]", SERVICE_NAME,  maxTreads, downloadImages));
+        logger.debug(String.format("Properties [%s] for service [%s]", properties.toPrettyString(), SERVICE_NAME));
+        logger.info(String.format("Configured service [%s]: maxThreadPool - [%d], forceDownloadImages - [%b]", SERVICE_NAME,  maxThreadPool, downloadImages));
     }
 
     private void createPdf(FunctionRequest req) {
