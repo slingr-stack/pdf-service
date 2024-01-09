@@ -10,6 +10,7 @@ import com.itextpdf.kernel.font.PdfFontFactory;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfReader;
 import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.layout.properties.TextAlignment;
 import io.slingr.services.services.AppLogs;
 import io.slingr.services.services.Files;
 import io.slingr.services.utils.Json;
@@ -100,19 +101,19 @@ public class PdfFillForm {
                                     formField.setFontSize(fieldSettings.integer("textSize"));
                                 }
                                 if (fieldSettings.contains("backgroundColor")) {
-                                    formField.setBackgroundColor(hex2Rgb(fieldSettings.string("backgroundColor")));
+                                    formField.getFirstFormAnnotation().setBackgroundColor(hex2Rgb(fieldSettings.string("backgroundColor")));
                                 }
                                 if (fieldSettings.contains("textColor")) {
                                     formField.setColor(hex2Rgb(fieldSettings.string("textColor")));
                                 }
                                 if (fieldSettings.contains("textAlignment")) {
-                                    int textAlign = PdfFormField.ALIGN_LEFT;
+                                    TextAlignment alignment = TextAlignment.LEFT;
                                     if ("CENTER".equals(fieldSettings.string("textAlignment"))) {
-                                        textAlign = PdfFormField.ALIGN_CENTER;
+                                        alignment = TextAlignment.CENTER;
                                     } else if ("RIGHT".equals(fieldSettings.string("textAlignment"))) {
-                                        textAlign = PdfFormField.ALIGN_RIGHT;
+                                        alignment = TextAlignment.RIGHT;
                                     }
-                                    formField.setJustification(textAlign);
+                                    formField.setJustification(alignment);
                                 }
                                 boolean readOnly = false;
                                 if (fieldSettings.contains("readOnly")) {

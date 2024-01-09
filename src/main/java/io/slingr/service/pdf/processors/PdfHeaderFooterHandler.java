@@ -7,6 +7,8 @@ import io.slingr.services.utils.Json;
 import io.slingr.services.utils.Strings;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.pdfbox.Loader;
+import org.apache.pdfbox.io.RandomAccessReadBuffer;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -40,7 +42,7 @@ public class PdfHeaderFooterHandler {
         if (footerTemplate != null) {
             tempFiles.put(FOOTER_HTML_PATH, getTempFileFromTemplate(footerTemplate));
         }
-        try (final PDDocument document = PDDocument.load(report)) {
+        try (final PDDocument document = Loader.loadPDF(new RandomAccessReadBuffer(report))) {
             File tempHeader = getImageFromTemplate(tempFiles.get(HEADER_HTML_PATH), document, hHeight);
             if (tempHeader != null) {
                 tempFiles.put(TEMP_HEADER_PATH, tempHeader.getPath());
@@ -103,7 +105,7 @@ public class PdfHeaderFooterHandler {
     }
 
     public String setHeaderWithImage(InputStream report, InputStream header, float hHeight, float hWidth, InputStream footer, int fHeight, float fWidth) {
-        try (final PDDocument document = PDDocument.load(report)) {
+        try (final PDDocument document = Loader.loadPDF(new RandomAccessReadBuffer(report))) {
             File tempHeader = null;
             if (header != null) {
                 tempHeader = getImageFromInputStream(header);

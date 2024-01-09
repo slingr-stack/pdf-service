@@ -1,6 +1,5 @@
-package io.slingr.service.pdf;
+package io.slingr.service.pdf.processors;
 
-import io.slingr.service.pdf.processors.PdfHeaderFooterHandler;
 import io.slingr.services.utils.FilesUtils;
 import io.slingr.services.utils.Json;
 import org.junit.Assert;

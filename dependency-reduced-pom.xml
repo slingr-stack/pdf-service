@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <parent>
+    <artifactId>slingr-services-builder</artifactId>
+    <groupId>io.github.slingr-stack</groupId>
+    <version>1.0.0</version>
+    <relativePath>../pom.xml/pom.xml</relativePath>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>pdf</artifactId>
+  <name>SLINGR - PDF service</name>
+  <version>1.0-SNAPSHOT</version>
+  <description>Default component to convert html to pdf or images of the Slingr platform</description>
+  <repositories>
+    <repository>
+      <id>clojars</id>
+      <name>Clojars repository</name>
+      <url>https://clojars.org/repo</url>
+    </repository>
+  </repositories>
+  <dependencies>
+    <dependency>
+      <groupId>com.itextpdf</groupId>
+      <artifactId>itext-core</artifactId>
+      <version>8.0.2</version>
+      <type>pom</type>
+      <scope>compile</scope>
+    </dependency>
+  </dependencies>
+  <properties>
+    <pdfbox.version>3.0.1</pdfbox.version>
+    <build.main-class>io.slingr.service.pdf.Runner</build.main-class>
+    <jsoup.version>1.17.2</jsoup.version>
+    <itext.version>8.0.2</itext.version>
+    <slingr.slingr-service.version>1.4.0</slingr.slingr-service.version>
+    <freemarker.version>2.3.32</freemarker.version>
+  </properties>
+</project>

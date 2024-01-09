@@ -6,6 +6,8 @@ import io.slingr.services.services.Files;
 import io.slingr.services.services.rest.DownloadedFile;
 import io.slingr.services.utils.Json;
 import io.slingr.services.ws.exchange.FunctionRequest;
+import org.apache.pdfbox.Loader;
+import org.apache.pdfbox.io.RandomAccessReadBuffer;
 import org.apache.pdfbox.multipdf.PDFMergerUtility;
 import org.apache.pdfbox.multipdf.Splitter;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -48,7 +50,7 @@ public class MergeDocumentsWorker extends PdfWorker {
                     String fileId = doc.string("file");
                     DownloadedFile downloadedFile = files.download(fileId);
                     InputStream is = downloadedFile.getFile();
-                    PDDocument pdf = PDDocument.load(is);
+                    PDDocument pdf = Loader.loadPDF(new RandomAccessReadBuffer(is));
                     List<PDDocument> splitDoc = splitter.split(pdf);
                     int i = 1;
                     for (PDDocument page : splitDoc) {
