@@ -7,6 +7,8 @@ import io.slingr.services.services.Files;
 import io.slingr.services.services.rest.DownloadedFile;
 import io.slingr.services.utils.Json;
 import io.slingr.services.ws.exchange.FunctionRequest;
+import org.apache.pdfbox.Loader;
+import org.apache.pdfbox.io.RandomAccessReadBuffer;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -35,7 +37,7 @@ public class AddImagesWorker extends PdfImageWorker {
         Json res = Json.map();
         try {
             InputStream is = files.download(fileId).getFile();
-            PDDocument pdf = PDDocument.load(is);
+            PDDocument pdf = Loader.loadPDF(new RandomAccessReadBuffer(is));
             Json settings = data.json("settings");
             if (settings.contains("images")) {
                 List<Json> settingsImages = settings.jsons("images");

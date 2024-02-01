@@ -8,6 +8,8 @@ import io.slingr.services.services.Files;
 import io.slingr.services.utils.Json;
 import io.slingr.services.ws.exchange.FunctionRequest;
 import org.apache.commons.lang.StringUtils;
+import org.apache.pdfbox.Loader;
+import org.apache.pdfbox.io.RandomAccessReadBuffer;
 import org.apache.pdfbox.multipdf.PDFMergerUtility;
 import org.apache.pdfbox.multipdf.Splitter;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -45,7 +47,7 @@ public class SplitDocumentWorker extends PdfWorker {
             PDFMergerUtility merger = new PDFMergerUtility();
             Splitter splitter = new Splitter();
             InputStream is = files.download(fileId).getFile();
-            PDDocument pdf = PDDocument.load(is);
+            PDDocument pdf = Loader.loadPDF(new RandomAccessReadBuffer(is));
             List<PDDocument> splitDoc = splitter.split(pdf);
             if (!splitDoc.isEmpty()) {
                 for (int i = 0; i < splitDoc.size(); i += interval) {

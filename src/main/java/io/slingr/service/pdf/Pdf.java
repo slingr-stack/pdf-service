@@ -18,6 +18,8 @@ import io.slingr.services.utils.FilesUtils;
 import io.slingr.services.utils.Json;
 import io.slingr.services.ws.exchange.FunctionRequest;
 import org.apache.commons.lang.StringUtils;
+import org.apache.pdfbox.Loader;
+import org.apache.pdfbox.io.RandomAccessReadBuffer;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
@@ -103,13 +105,13 @@ public class Pdf extends Service {
             is = pdfEngine.getPDF();
             if (is != null) {
                 try {
-                    logger.info("Uploading file to endpoint services");
+                    logger.info("Uploading file to platform");
                     Json fileJson = files().upload(pdfEngine.getFileName(), is, "application/pdf");
-                    logger.info("Done uploading file to endpoint services");
+                    logger.info("Done uploading file to platform");
                     res.set("status", "ok");
                     res.set("file", fileJson);
                 } catch (Exception e) {
-                    logger.error("Problems uploading file to endpoint services", e);
+                    logger.error("Problems uploading file to platform", e);
                     if (retry) {
                         logger.info("Retrying uploading");
                         createPdf(req, false);
@@ -285,7 +287,7 @@ public class Pdf extends Service {
                 List<String> ids = new ArrayList<>();
                 try {
                     logger.info("Converting pdf to images");
-                    PDDocument document = PDDocument.load(file.getFile());
+                    PDDocument document = Loader.loadPDF(new RandomAccessReadBuffer(file.getFile()));
                     PDFRenderer pdfRenderer = new PDFRenderer(document);
                     for (int page = 0; page < document.getNumberOfPages(); ++page) {
                         BufferedImage bim = pdfRenderer.renderImageWithDPI(page, dpi, ImageType.RGB);

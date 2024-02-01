@@ -6,6 +6,8 @@ import io.slingr.services.services.Events;
 import io.slingr.services.services.Files;
 import io.slingr.services.utils.Json;
 import io.slingr.services.ws.exchange.FunctionRequest;
+import org.apache.pdfbox.Loader;
+import org.apache.pdfbox.io.RandomAccessReadBuffer;
 import org.apache.pdfbox.pdmodel.PDDocument;
 
 import java.io.File;
@@ -30,7 +32,7 @@ public class ReplaceImagesWorker extends PdfImageWorker {
         try {
             if (data.contains("settings")) {
                 InputStream is = files.download(fileId).getFile();
-                PDDocument pdf = PDDocument.load(is);
+                PDDocument pdf = Loader.loadPDF(new RandomAccessReadBuffer(is));
                 Json settings = data.json("settings");
                 if (settings.contains("images")) {
                     List<Json> settingsImages = settings.jsons("images");
