@@ -203,9 +203,8 @@ public class Pdf extends Service {
             String base64Image = convertImageToBase64(url);
             String imageType = URLConnection.guessContentTypeFromName(downloadImageToTmp(url).getName());
             String dataUrl = "data:" + imageType + ";base64, " + base64Image;
-            imgElement.attr("src", dataUrl);
-
             //imageUrls.put(url, "file:///" + downloadImageToTmp(url));
+            imageUrls.put(url, dataUrl);
         }
         return imageUrls;
     }
