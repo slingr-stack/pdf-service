@@ -165,6 +165,8 @@ public class Pdf extends Service {
                 for (Map.Entry<String, String> entry : urlImgs.entrySet()) {
                     swString = swString.replace(entry.getKey(), entry.getValue());
                 }
+
+                logger.info(String.format("Template [%s]", swString));
             }
             data.set("tpl", swString);
             QueuePdf.getStreamInstance().add(request);
