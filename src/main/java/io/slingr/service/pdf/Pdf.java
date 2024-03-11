@@ -33,10 +33,8 @@ import org.slf4j.LoggerFactory;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.net.URLConnection;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -202,22 +200,38 @@ public class Pdf extends Service {
         Elements imgElements = document.select("img");
         for (Element imgElement : imgElements) {
             String url = imgElement.attr("src");
-            imageUrls.put(url, "file:///" + downloadImageToTmp(url));
+            String base64Image = convertImageToBase64(url);
+            String imageType = URLConnection.guessContentTypeFromName(downloadImageToTmp(url).getName());
+            String dataUrl = "data:" + imageType + ";base64, " + base64Image;
+            imgElement.attr("src", dataUrl);
+
+            //imageUrls.put(url, "file:///" + downloadImageToTmp(url));
         }
         return imageUrls;
+    }
+
+    private String convertImageToBase64(String imageUrl) {
+        RestClient restClient = RestClient.builder(imageUrl);
+        DownloadedFile file = restClient.download();
+        byte[] fileContent;
+        try {
+            fileContent = file.getFile().readAllBytes();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return Base64.getEncoder().encodeToString(fileContent);
     }
 
     /**
      * Downloads an image from the provided URL to a temporary location.
      *
      * @param imageUrl The URL of the image to download.
-     * @return The local path to the downloaded image.
+     * @return The local file.
      */
-    private String downloadImageToTmp(String imageUrl) {
+    private File downloadImageToTmp(String imageUrl) {
         RestClient restClient = RestClient.builder(imageUrl);
         DownloadedFile file = restClient.download();
-        File localFile = FilesUtils.copyInputStreamToTemporaryFile("", file.getFile());
-        return localFile.getPath();
+        return FilesUtils.copyInputStreamToTemporaryFile("", file.getFile());
     }
 
     @ServiceFunction(name = "mergeDocuments")
