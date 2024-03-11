@@ -5,6 +5,7 @@ import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import io.slingr.service.pdf.processors.PdfEngine;
 import io.slingr.service.pdf.processors.PdfFilesUtils;
+import io.slingr.service.pdf.processors.PdfHeaderFooterHandler;
 import io.slingr.service.pdf.processors.QueuePdf;
 import io.slingr.service.pdf.workers.*;
 import io.slingr.services.Service;
@@ -66,6 +67,7 @@ public class Pdf extends Service {
         int maxThread;
         if (maxThreadPool==null) maxThread = 3;
         else  maxThread = Integer.parseInt(maxThreadPool);
+        PdfHeaderFooterHandler.downloadImages = this.downloadImages;
         this.executorService = Executors.newFixedThreadPool(maxThread);
         if (!properties().isLocalDeployment()) {
             try {
@@ -165,8 +167,7 @@ public class Pdf extends Service {
                 for (Map.Entry<String, String> entry : urlImgs.entrySet()) {
                     swString = swString.replace(entry.getKey(), entry.getValue());
                 }
-
-                logger.info(String.format("Template [%s]", swString));
+                logger.info(String.format("Html with images base64: [%s]", swString));
             }
             data.set("tpl", swString);
             QueuePdf.getStreamInstance().add(request);
@@ -196,7 +197,7 @@ public class Pdf extends Service {
      * @param html The HTML content from which to extract image URLs.
      * @return A map containing the original image URLs as keys and their local paths as values.
      */
-    private Map<String, String> extractImageUrlsFromHtml(String html) {
+    public static Map<String, String> extractImageUrlsFromHtml(String html) {
         Map<String, String> imageUrls = new LinkedHashMap<>();
         Document document = Jsoup.parse(html);
         Elements imgElements = document.select("img");
@@ -211,7 +212,7 @@ public class Pdf extends Service {
         return imageUrls;
     }
 
-    private String convertImageToBase64(String imageUrl) {
+    private static String convertImageToBase64(String imageUrl) {
         RestClient restClient = RestClient.builder(imageUrl);
         DownloadedFile file = restClient.download();
         byte[] fileContent;
@@ -229,7 +230,7 @@ public class Pdf extends Service {
      * @param imageUrl The URL of the image to download.
      * @return The local file.
      */
-    private File downloadImageToTmp(String imageUrl) {
+    private static File downloadImageToTmp(String imageUrl) {
         RestClient restClient = RestClient.builder(imageUrl);
         DownloadedFile file = restClient.download();
         return FilesUtils.copyInputStreamToTemporaryFile("", file.getFile());

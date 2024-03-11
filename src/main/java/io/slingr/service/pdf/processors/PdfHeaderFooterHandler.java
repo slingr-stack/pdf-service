@@ -3,6 +3,7 @@ package io.slingr.service.pdf.processors;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
+import io.slingr.service.pdf.Pdf;
 import io.slingr.services.utils.Json;
 import io.slingr.services.utils.Strings;
 import org.apache.commons.io.FileUtils;
@@ -33,6 +34,7 @@ public class PdfHeaderFooterHandler {
     public static final String DATA = "data";
     private static final Logger logger = LoggerFactory.getLogger(PdfHeaderFooterHandler.class);
     private final Map<String, String> tempFiles = new HashMap<>();
+    public static boolean downloadImages;
 
 
     public String setHeaderWithImage(InputStream report, String headerTemplate, float hHeight, float hWidth, String footerTemplate, float fHeight, float fWidth) {
@@ -205,7 +207,15 @@ public class PdfHeaderFooterHandler {
                 if (data != null) {
                     tpl.process(data.toMap(), sw);
                 }
-                return sw.toString();
+                String swString = sw.toString();
+                if (downloadImages) {
+                    Map<String, String> urlImgs = Pdf.extractImageUrlsFromHtml(swString);
+                    for (Map.Entry<String, String> entry : urlImgs.entrySet()) {
+                        swString = swString.replace(entry.getKey(), entry.getValue());
+                    }
+                    logger.info(String.format("Template [%s]", swString));
+                }
+                return swString;
             }
         } catch (IOException | TemplateException ex) {
             logger.warn(String.format("Error to parse [%s] with [%s]", template, data.toString()));
