@@ -68,6 +68,7 @@ public class Pdf extends Service {
         if (maxThreadPool==null) maxThread = 3;
         else  maxThread = Integer.parseInt(maxThreadPool);
         PdfHeaderFooterHandler.downloadImages = this.downloadImages;
+        PdfEngine.downloadImages = this.downloadImages;
         this.executorService = Executors.newFixedThreadPool(maxThread);
         if (!properties().isLocalDeployment()) {
             try {

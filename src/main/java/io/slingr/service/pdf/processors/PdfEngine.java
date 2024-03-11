@@ -3,6 +3,7 @@ package io.slingr.service.pdf.processors;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
+import io.slingr.service.pdf.Pdf;
 import io.slingr.services.utils.Json;
 import io.slingr.services.utils.Strings;
 import org.apache.commons.io.FileUtils;
@@ -25,6 +26,7 @@ public class PdfEngine {
 
     private final String headerTmpFile;
     private final String footerTmpFile;
+    public static boolean downloadImages;
 
 
     public PdfEngine(String tpl, Json settings, boolean downloadImages) throws IOException, TemplateException {
@@ -99,6 +101,13 @@ public class PdfEngine {
                 StringWriter sw = new StringWriter();
                 tpl.process(data.toMap(), sw);
                 template = sw.toString();
+                if (downloadImages) {
+                    Map<String, String> urlImgs = Pdf.extractImageUrlsFromHtml(template);
+                    for (Map.Entry<String, String> entry : urlImgs.entrySet()) {
+                        template = template.replace(entry.getKey(), entry.getValue());
+                    }
+                    logger.info(String.format("Template [%s]", template));
+                }
                 File temp = File.createTempFile("pdf-header-" + Strings.randomUUIDString(), ".html");
                 FileUtils.writeStringToFile(temp, template, "UTF-8");
                 path = temp.getAbsolutePath();
