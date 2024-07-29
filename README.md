@@ -53,6 +53,13 @@ You can set specific properties in document.
 
 **footerData** data used in footer template.
 
+**imageDpi:** when embedding images scale them down to this dpi. Default value is `600`. You can check `wkhtmltopdf` for more options.
+
+**imageQuality:** when jpeg compressing images use this quality.  Default value is `94`. You can check `wkhtmltopdf` for more options.
+
+**lowquality:** generates lower quality pdf/ps. Useful to shrink the result document space. Default value is `false`. You can check `wkhtmltopdf` for more options.
+
+
 ## Generated PDF
 
 Generated PDF is returned as a file structure.

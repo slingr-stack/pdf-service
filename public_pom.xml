@@ -13,7 +13,7 @@
     <packaging>jar</packaging>
     <properties>
         <!-- Slingr versions -->
-        <slingr.slingr-service.version>1.4.0</slingr.slingr-service.version>
+        <slingr.slingr-service.version>1.5.5</slingr.slingr-service.version>
         <!-- Dependency versions -->
         <freemarker.version>2.3.32</freemarker.version>
         <pdfbox.version>3.0.1</pdfbox.version>

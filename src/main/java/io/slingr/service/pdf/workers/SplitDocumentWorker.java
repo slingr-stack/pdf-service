@@ -25,7 +25,6 @@ import java.util.List;
 
 
 public class SplitDocumentWorker extends PdfWorker {
-
     private final Logger logger = LoggerFactory.getLogger(SplitDocumentWorker.class);
 
     public SplitDocumentWorker(Events events, Files files, AppLogs appLogger, FunctionRequest request) {
