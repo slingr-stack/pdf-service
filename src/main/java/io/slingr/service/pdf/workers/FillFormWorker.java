@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class FillFormWorker extends PdfWorker {
-
     private final Logger logger = LoggerFactory.getLogger(FillFormWorker.class);
 
     public FillFormWorker(Events events, Files files, AppLogs appLogger, FunctionRequest request) {

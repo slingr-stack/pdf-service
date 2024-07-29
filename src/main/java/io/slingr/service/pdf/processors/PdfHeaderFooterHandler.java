@@ -21,6 +21,7 @@ import java.io.*;
 import java.util.*;
 
 public class PdfHeaderFooterHandler {
+    private static final Logger logger = LoggerFactory.getLogger(PdfHeaderFooterHandler.class);
 
     public static final String HEADER = "header";
     public static final String FOOTER = "footer";
@@ -32,10 +33,8 @@ public class PdfHeaderFooterHandler {
     public static final String TEMP_FOOTER_PATH = "tempFooterPath";
     public static final String HTML = "html";
     public static final String DATA = "data";
-    private static final Logger logger = LoggerFactory.getLogger(PdfHeaderFooterHandler.class);
     private final Map<String, String> tempFiles = new HashMap<>();
     public static boolean downloadImages;
-
 
     public String setHeaderWithImage(InputStream report, String headerTemplate, float hHeight, float hWidth, String footerTemplate, float fHeight, float fWidth) {
         if (headerTemplate != null) {
@@ -226,7 +225,7 @@ public class PdfHeaderFooterHandler {
     public void cleanGeneratedFiles() {
         for (String key : tempFiles.keySet()) {
             if (tempFiles.get(key) != null) {
-                logger.info("Cleaning files: " + (new File(tempFiles.get(key))).delete());
+                logger.info("Cleaning files: {}", (new File(tempFiles.get(key))).delete());
             }
         }
     }

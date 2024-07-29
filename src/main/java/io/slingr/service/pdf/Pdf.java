@@ -43,7 +43,6 @@ import java.util.concurrent.TimeUnit;
 
 @SlingrService(name = "pdf")
 public class Pdf extends Service {
-
     private static final String SERVICE_NAME = "pdf";
     private final Logger logger = LoggerFactory.getLogger(Pdf.class);
 

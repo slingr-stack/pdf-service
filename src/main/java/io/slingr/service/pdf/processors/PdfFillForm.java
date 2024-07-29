@@ -27,8 +27,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class PdfFillForm {
-
     private final Logger logger = LoggerFactory.getLogger(PdfFillForm.class);
+
     private final Map<String, String> fonts;
     private final AppLogs appLogger;
 
@@ -149,9 +149,8 @@ public class PdfFillForm {
 
     private Color hex2Rgb(String colorStr) {
         StringUtils.replace(colorStr, "#", "");
-        return new DeviceRgb(
-                Integer.valueOf(colorStr.substring(1, 3), 16),
-                Integer.valueOf(colorStr.substring(3, 5), 16),
-                Integer.valueOf(colorStr.substring(5, 7), 16));
+        return new DeviceRgb(Integer.valueOf(colorStr.substring(1, 3), 16),
+                             Integer.valueOf(colorStr.substring(3, 5), 16),
+                             Integer.valueOf(colorStr.substring(5, 7), 16));
     }
 }

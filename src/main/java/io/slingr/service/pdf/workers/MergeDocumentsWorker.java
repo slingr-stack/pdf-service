@@ -21,7 +21,6 @@ import java.io.InputStream;
 import java.util.List;
 
 public class MergeDocumentsWorker extends PdfWorker {
-
     private final Logger logger = LoggerFactory.getLogger(MergeDocumentsWorker.class);
 
     public MergeDocumentsWorker(Events events, Files files, AppLogs appLogger, FunctionRequest request) {

@@ -17,7 +17,6 @@ import java.io.InputStream;
 import java.util.Objects;
 
 public class ReplaceHeaderAndFooterWorker extends PdfWorker {
-
     private final Logger logger = LoggerFactory.getLogger(ReplaceHeaderAndFooterWorker.class);
 
     private static final String IMAGE_ID = "imageId";

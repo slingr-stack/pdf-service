@@ -15,74 +15,73 @@ import java.io.*;
 import java.util.*;
 
 public class PdfEngine {
-
     private final Logger logger = LoggerFactory.getLogger(PdfEngine.class);
 
     private final String template;
-    List<String> commandParams;
+    private final List<String> commandParams;
     private String sourceTmpFile;
     private String targetTmpFile;
     private final String fileName;
-
     private final String headerTmpFile;
     private final String footerTmpFile;
     public static boolean downloadImages;
 
-
     public PdfEngine(String tpl, Json settings, boolean downloadImages) throws IOException, TemplateException {
-
         template = tpl;
         commandParams = new ArrayList<>();
         commandParams.add("/usr/bin/wkhtmltopdf");
-
         if (settings == null) {
             settings = Json.map();
         }
-
         this.headerTmpFile = this.addFileCommandParams(commandParams, settings.string("headerTemplate"), settings.json("headerData"), "--header-html");
         this.footerTmpFile = this.addFileCommandParams(commandParams, settings.string("footerTemplate"), settings.json("footerData"), "--footer-html");
-
         String pageSize = settings.string("pageSize");
         if (StringUtils.isBlank(pageSize)) {
             pageSize = "A4";
         }
         commandParams.add("--page-size");
         commandParams.add(pageSize);
-
         if (downloadImages){
             commandParams.add("--enable-local-file-access");
         }
-
         String orientation = settings.string("orientation");
         if (StringUtils.isNotBlank(orientation) && orientation.equalsIgnoreCase("landscape")) {
             commandParams.add("--orientation");
             commandParams.add("Landscape");
         }
-
         Integer marginBottom = settings.integer("marginBottom");
         if (marginBottom != null) {
             commandParams.add("--margin-bottom");
             commandParams.add(Integer.toString(marginBottom));
         }
-
         Integer marginLeft = settings.integer("marginLeft");
         if (marginLeft != null) {
             commandParams.add("--margin-left");
             commandParams.add(Integer.toString(marginLeft));
         }
-
         Integer marginRight = settings.integer("marginRight");
         if (marginRight != null) {
             commandParams.add("--margin-right");
             commandParams.add(Integer.toString(marginRight));
         }
-
         Integer marginTop = settings.integer("marginTop");
         if (marginTop != null) {
             commandParams.add("--margin-top");
             commandParams.add(Integer.toString(marginTop));
         }
-
+        Integer imageDpi = settings.integer("imageDpi");
+        if (imageDpi != null) {
+            commandParams.add("--image-dpi");
+            commandParams.add(Integer.toString(imageDpi));
+        }
+        Integer imageQuality = settings.integer("imageDpi");
+        if (imageQuality != null) {
+            commandParams.add("--image-quality");
+            commandParams.add(Integer.toString(imageQuality));
+        }
+        if (settings.bool("lowquality") != null) {
+            commandParams.add("--lowquality");
+        }
         String fn = settings.string("name");
         if (StringUtils.isBlank(fn)) {
             fileName = "pdf-" + new Date().getTime();
@@ -154,7 +153,6 @@ public class PdfEngine {
         if (deleteH && deleteT && deleteF && deleteS) {
             logger.info("Cleaning temporal files");
         }
-
         String TMP_PATH = "/tmp";
         File tmpFolder = new File(TMP_PATH);
         if (tmpFolder.exists() && tmpFolder.isDirectory()) {
@@ -162,7 +160,7 @@ public class PdfEngine {
             File[] tmpFiles = tmpFolder.listFiles(filter);
             if (tmpFiles != null) {
                 for (File tmpFile : tmpFiles) {
-                    if (tmpFile.delete())  logger.info("Deleted: " + tmpFile.getName());
+                    if (tmpFile.delete()) logger.info("Deleted: {}", tmpFile.getName());
                 }
             }
             logger.info(".tmp files deleted from the /tmp folder.");
