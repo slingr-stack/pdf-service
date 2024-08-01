@@ -49,6 +49,11 @@ public class PdfEngine {
             commandParams.add("--orientation");
             commandParams.add("Landscape");
         }
+        String userStyleSheet = settings.contains("userStyleSheet") ? settings.string("userStyleSheet") : "";
+        if (StringUtils.isNotBlank(userStyleSheet)) {
+            commandParams.add("--userStyleSheet");
+            commandParams.add(userStyleSheet);
+        }
         Integer marginBottom = settings.integer("marginBottom");
         if (marginBottom != null) {
             commandParams.add("--margin-bottom");
