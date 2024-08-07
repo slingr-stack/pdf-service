@@ -49,10 +49,25 @@ public class PdfEngine {
             commandParams.add("--orientation");
             commandParams.add("Landscape");
         }
-        String userStyleSheet = settings.contains("userStyleSheet") ? settings.string("userStyleSheet") : "";
-        if (StringUtils.isNotBlank(userStyleSheet)) {
-            commandParams.add("--userStyleSheet");
-            commandParams.add(userStyleSheet);
+        String footerFontName = settings.contains("footerFontName") ? settings.string("footerFontName") : "";
+        if (StringUtils.isNotBlank(footerFontName)) {
+            commandParams.add("--footer-font-name");
+            commandParams.add(footerFontName);
+        }
+        String footerFontSize = settings.contains("footerFontSize") ? settings.string("footerFontSize") : "";
+        if (StringUtils.isNotBlank(footerFontSize)) {
+            commandParams.add("--footer-font-size");
+            commandParams.add(footerFontSize);
+        }
+        String headerFontName = settings.contains("headerFontName") ? settings.string("headerFontName") : "";
+        if (StringUtils.isNotBlank(headerFontName)) {
+            commandParams.add("--header-font-name");
+            commandParams.add(headerFontName);
+        }
+        String headerFontSize = settings.contains("headerFontSize") ? settings.string("headerFontSize") : "";
+        if (StringUtils.isNotBlank(headerFontSize)) {
+            commandParams.add("--header-font-size");
+            commandParams.add(headerFontSize);
         }
         Integer marginBottom = settings.integer("marginBottom");
         if (marginBottom != null) {

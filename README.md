@@ -59,7 +59,13 @@ You can set specific properties in document.
 
 **lowquality:** generates lower quality pdf/ps. Useful to shrink the result document space. Default value is `false`. You can check `wkhtmltopdf` for more options.
 
-**userStyleSheet:** url to a user-specified stylesheet. You can check `wkhtmltopdf` for more options. Ex. settings.userStyleSheet = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap"
+**footerFontName:** Set footer font name (default Arial). You can check `wkhtmltopdf` for more options.
+
+**footerFontSize:** Set footer font size (default 12). You can check `wkhtmltopdf` for more options.
+
+**headerFontName:** Set header font name (default Arial). You can check `wkhtmltopdf` for more options.
+
+**headerFontSize:** Set header font size (default 12). You can check `wkhtmltopdf` for more options.
 
 ## Generated PDF
 
