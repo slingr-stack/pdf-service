@@ -74,6 +74,7 @@ public class ReplaceHeaderAndFooterWorker extends PdfWorker {
             res.set("status", "error");
             res.set("message", "Should set images or templates for header and footer");
             events.send("pdfResponse", res, request.getFunctionId());
+            dadsa
         }
     }
 }
