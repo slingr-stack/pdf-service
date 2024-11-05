@@ -16,7 +16,7 @@ jobs:
         id: pragent
         uses: Codium-ai/pr-agent@main
         env:
-          OPENAI_KEY: ${{ secrets.OPENAI_KEY }}
+          OPENAI_KEY: "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"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OPENAI.ORG: "Slingr"
           PR_REVIEWER.REQUIRE_TESTS_REVIEW: "false"
