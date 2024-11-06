@@ -155,6 +155,9 @@ public class Pdf extends Service {
         logger.info("Pdf has been successfully created. Sending [pdfResponse] event to the app");
         events().send("pdfResponse", res, req.getFunctionId());
         logger.info("Done sending [pdfResponse] event to the app");
+        if (true) {
+            logger.info("This is a test");
+        }
     }
 
     @ServiceFunction(name = "generatePdf")
