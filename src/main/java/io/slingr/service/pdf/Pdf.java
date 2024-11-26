@@ -111,10 +111,11 @@ public class Pdf extends Service {
                     res.set("status", "ok");
                     res.set("file", fileJson);
                 } catch (Exception e) {
-                    logger.error("Problems uploading file to platform", e);
                     if (retry) {
                         logger.info("Retrying uploading");
                         createPdf(req, false);
+                    } else {
+                        logger.error("Problems uploading file to platform", e);
                     }
                 } finally {
                     pdfEngine.cleanTmpFiles();
