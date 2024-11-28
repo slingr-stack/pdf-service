@@ -177,7 +177,8 @@ public class Pdf extends Service {
             logger.error("Can not generate pdf, i/o exception", e);
             throw ServiceException.permanent(ErrorCode.GENERAL, "Failed to create file", e);
         } catch (TemplateException e) {
-            logger.error("Can not generate pdf, template exception", e);
+            logger.warn("Can not generate pdf, template exception", e);
+            appLogs.warn(String.format("Can not generate pdf, template exception [%s]", e.getMessage()));
             throw ServiceException.permanent(ErrorCode.GENERAL, "Failed to parse template", e);
         } finally {
             try {
