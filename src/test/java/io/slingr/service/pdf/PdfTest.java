@@ -105,4 +105,31 @@ public class PdfTest {
             e.printStackTrace();
         }
     }
+
+    @Test
+    public void testPdfToText() throws IOException {
+        logger.info("-- INIT --");
+
+        String fileId = "testFileId";
+        Json req = Json.map();
+        req.set("fileId", fileId);
+
+        ClassLoader classLoader = getClass().getClassLoader();
+        InputStream pdfInputStream = classLoader.getResourceAsStream("payroll-sample.pdf");
+        PDDocument pdf = Loader.loadPDF(new RandomAccessReadBuffer(pdfInputStream));
+        if (!pdf.isEncrypted()) {
+            PDFTextStripper pdfStripper = new PDFTextStripper();
+            String text = pdfStripper.getText(pdf);
+            assertNotNull("El archivo PDF no se encontró en resources", pdfInputStream);
+            assertTrue(text.contains("Pay Period"));
+        }
+        Json res = test.executeFunction("convertPdfToText", req);
+        assertNotNull(res);
+        assertNotNull(res.string("status"));
+        assertEquals("failed", res.string("status"));
+        assertTrue(res.string("message").contains("File does not exist on the application"));
+        assertFalse(res.is(Parameter.EXCEPTION_FLAG));
+        logger.info(res.toString());
+        logger.info("-- END --");
+    }
 }
