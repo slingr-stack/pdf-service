@@ -74,39 +74,6 @@ public class PdfTest {
 
     @Test
     @Ignore
-    public void testExtractingText() {
-        // Specify the path to the PDF file
-        String pdfFilePath = "payroll-sample.pdf";
-        // Load the PDF from the classpath
-        try (InputStream pdfStream = PdfTest.class.getClassLoader().getResourceAsStream(pdfFilePath)) {
-            if (pdfStream == null) {
-                System.out.println("PDF not found in classpath.");
-                return;
-            }
-
-            RandomAccessReadBuffer readBuffer = new RandomAccessReadBuffer(pdfStream);
-
-            // Use Loader.loadPDF to load the PDF from InputStream
-            try (PDDocument document = Loader.loadPDF(readBuffer)) {
-                if (!document.isEncrypted()) {
-                    // Create a PDFTextStripper object to extract text
-                    PDFTextStripper pdfStripper = new PDFTextStripper();
-
-                    // Extract text from the PDF
-                    String text = pdfStripper.getText(document);
-
-                    // Output the extracted text
-                    System.out.println(text);
-                } else {
-                    System.out.println("Document is encrypted and cannot be read.");
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Test
     public void testPdfToText() throws IOException {
         logger.info("-- INIT --");
 
