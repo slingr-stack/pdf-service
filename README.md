@@ -507,6 +507,37 @@ This is an example of the response
 }
 ```
 
+## Convert PDF to text
+
+This feature allows the conversion of a PDF file to text by sending the file ID as a setting parameter. The resulting text will be extracted from the provided PDF and returned as a response.
+
+**fileId:** The ID of the PDF file to be converted. Required.
+
+```js
+var fileId = record.field('myPdf').val().id;
+
+svc.pdf.convertPdfToText({fileId: fileId, callbackData: {record: record}, callbacks: {
+    pdfResponse: function(res, resData) {
+      var data = res.data;
+      var document = resData.record;
+      if(data && data.status == "ok") {
+        document.field('extractedText').val(data.pdfText);
+        sys.data.save(document);
+      } else {
+        logger.error("PDF Conversion failed: " + data.message);
+      }
+    }
+  }});
+```
+This is an example of the response
+```json
+{
+  "status": "ok",
+  "message": "PDF conversion completed.",
+  "pdfText": "This is the extracted text from the PDF."
+}
+```
+
 ## About SLINGR
 
 SLINGR is a low-code rapid application development platform that accelerates development, with robust architecture for integrations and executing custom workflows and automation.

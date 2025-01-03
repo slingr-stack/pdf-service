@@ -119,6 +119,16 @@
                     "maxExpectedResponses": 1
                 }
             ]
+        },
+        {
+            "label": "Convert Pdf To Text",
+            "name": "convertPdfToText",
+            "callbacks": [
+                {
+                    "name": "pdfResponse",
+                    "maxExpectedResponses": 1
+                }
+            ]
         }
     ],
     "configuration":[

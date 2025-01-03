@@ -24,6 +24,7 @@ import org.apache.pdfbox.io.RandomAccessReadBuffer;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
+import org.apache.pdfbox.text.PDFTextStripper;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -335,5 +336,74 @@ public class Pdf extends Service {
             events().send("pdfResponse", resp, request.getFunctionId());
         });
         return Json.map().set("status", "ok");
+    }
+
+    @ServiceFunction(name = "convertPdfToText")
+    public Json convertPdfToText (FunctionRequest request){
+        logger.info(String.format("Converting pdf to text from service [%s]", SERVICE_NAME));
+        Json data = request.getJsonParams();
+        String fileId = data.string("fileId");
+        Json resp = Json.map();
+        InputStream downloadedFile = null; 
+        PDDocument pdf = null;
+        try {
+            try {
+                downloadedFile = files().download(fileId).getFile();
+                if (downloadedFile == null) {
+                    appLogs.error("Cannot convert PDF, empty file.");
+                    logger.error("Cannot convert pdf, empty file.");
+                    resp.set("status", "failed");
+                    resp.set("message", "File does not exist or is empty.");
+                    return resp;
+                }
+            } catch (Exception e) {
+                appLogs.error("Cannot find the file on the server.", e);
+                logger.error("File not found.", e);
+                resp.set("status", "failed");
+                resp.set("message", "File does not exist on the application.");
+                return resp;
+            }
+
+            try {
+                pdf = Loader.loadPDF(new RandomAccessReadBuffer(downloadedFile));
+                if (!pdf.isEncrypted()) {
+                    PDFTextStripper pdfStripper = new PDFTextStripper();
+                    String text = pdfStripper.getText(pdf);
+                    resp.set("pdfText", text);
+                    resp.set("status", "ok");
+                } else {
+                    appLogs.error("Cannot convert PDF, file is encrypted.");
+                    logger.error("Cannot convert pdf, file is encrypted.");
+                    resp.set("status", "failed");
+                    resp.set("message", "File is encrypted.");
+                    return resp;
+                }
+            } catch (IOException e) {
+                appLogs.error("Cannot convert PDF, I/O exception", e);
+                logger.error("Cannot convert pdf, I/O exception", e);
+                resp.set("status", "failed");
+                resp.set("message", "Cannot convert pdf. An error occurred during the conversion process.");
+                return resp;
+            }
+        } finally {
+            if (pdf != null) {
+                try {
+                    pdf.close();
+                } catch (IOException e) {
+                    appLogs.error("Error closing PDF document.", e);
+                    logger.error("Error closing PDF document.", e);
+                }
+            }
+            if (downloadedFile != null) {
+                try {
+                    downloadedFile.close();
+                } catch (IOException e) {
+                    appLogs.error("Error closing downloaded file stream.", e);
+                    logger.error("Error closing downloaded file stream.", e);
+                }
+            }
+        }
+        events().send("pdfResponse", resp, request.getFunctionId());
+        return Json.map().set("status", "ok").set("message", "PDF conversion completed.");
     }
 }

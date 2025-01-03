@@ -3,15 +3,26 @@ package io.slingr.service.pdf;
 import io.slingr.services.services.exchange.Parameter;
 import io.slingr.services.utils.Json;
 import io.slingr.services.utils.tests.ServiceTests;
+import org.apache.pdfbox.Loader;
+import org.apache.pdfbox.io.RandomAccessReadBuffer;
+import org.apache.pdfbox.io.RandomAccessReadBufferedFile;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.InputStream;
 import java.util.List;
 
 import static org.junit.Assert.*;
 import static org.junit.Assert.assertFalse;
+
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.text.PDFTextStripper;
+
+import java.io.File;
+import java.io.IOException;
 
 public class PdfTest {
 
@@ -58,6 +69,34 @@ public class PdfTest {
         assertNotNull(res.string("status"));
         assertEquals("ok", res.string("status"));
 
+        logger.info("-- END --");
+    }
+
+    @Test
+    @Ignore
+    public void testPdfToText() throws IOException {
+        logger.info("-- INIT --");
+
+        String fileId = "testFileId";
+        Json req = Json.map();
+        req.set("fileId", fileId);
+
+        ClassLoader classLoader = getClass().getClassLoader();
+        InputStream pdfInputStream = classLoader.getResourceAsStream("payroll-sample.pdf");
+        PDDocument pdf = Loader.loadPDF(new RandomAccessReadBuffer(pdfInputStream));
+        if (!pdf.isEncrypted()) {
+            PDFTextStripper pdfStripper = new PDFTextStripper();
+            String text = pdfStripper.getText(pdf);
+            assertNotNull("El archivo PDF no se encontró en resources", pdfInputStream);
+            assertTrue(text.contains("Pay Period"));
+        }
+        Json res = test.executeFunction("convertPdfToText", req);
+        assertNotNull(res);
+        assertNotNull(res.string("status"));
+        assertEquals("failed", res.string("status"));
+        assertTrue(res.string("message").contains("File does not exist on the application"));
+        assertFalse(res.is(Parameter.EXCEPTION_FLAG));
+        logger.info(res.toString());
         logger.info("-- END --");
     }
 }
