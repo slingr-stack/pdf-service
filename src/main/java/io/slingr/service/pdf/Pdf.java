@@ -317,9 +317,7 @@ public class Pdf extends Service {
                         Json response = files().upload(fileName, in, "image/jpeg");
                         ids.add(response.string("fileId"));
                         in.close();
-                        if (tempFile.delete()) {
-                            appLogs.error("PDF converted successfully to images");
-                        }
+                        tempFile.delete();
                     }
                     logger.info("Pdf converted successfully to images");
                     convertedImages.set(pdfId.toString(), ids);
@@ -366,9 +364,7 @@ public class Pdf extends Service {
                     Json response = files().upload(fileName, in, "image/jpeg");
                     ids.add(response.string("fileId"));
                     in.close();
-                    if (tempFile.delete()) {
-                        appLogs.error("PDF converted successfully to images");
-                    }
+                    tempFile.delete();
                 }
                 logger.info("Pdf converted successfully to images");
                 convertedImages.set(pdfId.toString(), ids);
