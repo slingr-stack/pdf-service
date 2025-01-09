@@ -121,6 +121,10 @@
             ]
         },
         {
+            "label": "Convert Pdf To Images",
+            "name": "convertPdfToImagesSync"
+        },
+        {
             "label": "Convert Pdf To Text",
             "name": "convertPdfToText",
             "callbacks": [

@@ -338,6 +338,53 @@ public class Pdf extends Service {
         return Json.map().set("status", "ok");
     }
 
+    @ServiceFunction(name = "convertPdfToImagesSync")
+    public Json convertPdfToImagesSync(FunctionRequest request) {
+        logger.info(String.format("Converting pdf to images sync from service [%s]", SERVICE_NAME));
+        Json resp = Json.map();
+        Json data = request.getJsonParams();
+        Json settings = data.json("settings");
+        List<Object> fileIds = data.json("fileIds").toList();
+        Integer dpi = data.integer("dpi");
+        if (dpi > 600) {
+            throw ServiceException.permanent(ErrorCode.ARGUMENT, "DPI cannot be greater than 600.");
+        }
+        Json convertedImages = Json.map();
+        for (Object pdfId : fileIds.toArray()) {
+            DownloadedFile file = files().download(pdfId.toString());
+            List<String> ids = new ArrayList<>();
+            try {
+                logger.info("Converting pdf to images");
+                PDDocument document = Loader.loadPDF(new RandomAccessReadBuffer(file.getFile()));
+                PDFRenderer pdfRenderer = new PDFRenderer(document);
+                for (int page = 0; page < document.getNumberOfPages(); ++page) {
+                    BufferedImage bim = pdfRenderer.renderImageWithDPI(page, dpi, ImageType.RGB);
+                    File tempFile = File.createTempFile("image-pdf", ".jpeg");
+                    ImageIO.write(bim, "JPEG", tempFile);
+                    FileInputStream in = new FileInputStream(tempFile);
+                    String fileName = tempFile.getName();
+                    Json response = files().upload(fileName, in, "image/jpeg");
+                    ids.add(response.string("fileId"));
+                    in.close();
+                    if (tempFile.delete()) {
+                        appLogs.error("PDF converted successfully to images");
+                    }
+                }
+                logger.info("Pdf converted successfully to images");
+                convertedImages.set(pdfId.toString(), ids);
+                document.close();
+            } catch (IOException e) {
+                appLogs.error("Can not convert PDF, I/O exception", e);
+                logger.error("Can not convert pdf, i/o exception", e);
+                throw ServiceException.permanent(ErrorCode.GENERAL, "Failed to convert pdf to images", e);
+            }
+        }
+        resp.set("status", "ok");
+        resp.set("imagesIds", convertedImages);
+        resp.set("config", settings);
+        return resp;
+    }
+
     @ServiceFunction(name = "convertPdfToText")
     public Json convertPdfToText (FunctionRequest request){
         logger.info(String.format("Converting pdf to text from service [%s]", SERVICE_NAME));
