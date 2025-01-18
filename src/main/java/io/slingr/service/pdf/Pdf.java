@@ -294,9 +294,20 @@ public class Pdf extends Service {
         Json data = request.getJsonParams();
         Json settings = data.json("settings");
         List<Object> fileIds = data.json("fileIds").toList();
-        Integer dpi = data.integer("dpi");
+        Integer dpi;
+        if (data.isEmpty("dpi")) {
+            dpi = 150;
+        } else {
+            dpi = data.integer("dpi");
+        }
         if (dpi > 600) {
             throw ServiceException.permanent(ErrorCode.ARGUMENT, "DPI cannot be greater than 600.");
+        }
+        String format;
+        if (data.isEmpty("format")) {
+            format = "JPEG";
+        } else {
+            format = data.string("format");
         }
         Executors.newSingleThreadScheduledExecutor().execute(() -> {
             logger.info("Executing function in a separated thread");
@@ -311,7 +322,7 @@ public class Pdf extends Service {
                     for (int page = 0; page < document.getNumberOfPages(); ++page) {
                         BufferedImage bim = pdfRenderer.renderImageWithDPI(page, dpi, ImageType.RGB);
                         File tempFile = File.createTempFile("image-pdf", ".jpeg");
-                        ImageIO.write(bim, "JPEG", tempFile);
+                        ImageIO.write(bim, format, tempFile);
                         FileInputStream in = new FileInputStream(tempFile);
                         String fileName = tempFile.getName();
                         Json response = files().upload(fileName, in, "image/jpeg");
@@ -343,9 +354,20 @@ public class Pdf extends Service {
         Json data = request.getJsonParams();
         Json settings = data.json("settings");
         List<Object> fileIds = data.json("fileIds").toList();
-        Integer dpi = data.integer("dpi");
+        Integer dpi;
+        if (data.isEmpty("dpi")) {
+            dpi = 150;
+        } else {
+            dpi = data.integer("dpi");
+        }
         if (dpi > 600) {
             throw ServiceException.permanent(ErrorCode.ARGUMENT, "DPI cannot be greater than 600.");
+        }
+        String format;
+        if (data.isEmpty("format")) {
+            format = "JPEG";
+        } else {
+            format = data.string("format");
         }
         Json convertedImages = Json.map();
         for (Object pdfId : fileIds.toArray()) {
@@ -358,7 +380,7 @@ public class Pdf extends Service {
                 for (int page = 0; page < document.getNumberOfPages(); ++page) {
                     BufferedImage bim = pdfRenderer.renderImageWithDPI(page, dpi, ImageType.RGB);
                     File tempFile = File.createTempFile("image-pdf", ".jpeg");
-                    ImageIO.write(bim, "JPEG", tempFile);
+                    ImageIO.write(bim, format, tempFile);
                     FileInputStream in = new FileInputStream(tempFile);
                     String fileName = tempFile.getName();
                     Json response = files().upload(fileName, in, "image/jpeg");

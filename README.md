@@ -467,6 +467,7 @@ to images.
 **dpi:** represents the number of pixels per inch and therefore the resolution we want
 the converted pdf images to have. This can't be greater than 600. Required.
 
+**format:** the format of the image. If can be GIF, PNG, JPEG, BMP and WBMP. Default is JPEG.
 
 ```js
 svc.pdf.convertPdfToImages({fileIds: ['8ko8a06ca0be213068b65dee', '89osa06ca0be513068b2fgcg'], dpi: 72, callbacksData: { record: record }, callbacks: {
@@ -504,6 +505,24 @@ This is an example of the response
          "6324940d17170858125a6e2a"
       ]
    }
+}
+```
+
+There is a sync version that doesn't need a callback:
+
+```js
+let data = svc.pdf.convertPdfToImages({fileIds: ['8ko8a06ca0be213068b65dee', '89osa06ca0be513068b2fgcg'], dpi: 72, format: 'PNG'});
+if (data && data.status == "ok") {
+    var files = [];
+    // Here we iterate through the different pdfs ids
+    for(var id in data.imagesIds) {
+      // We can then iterate over the pages of the pdf that were converted
+      data.imagesIds[id].forEach(function(imageId) {
+        files.push(imageId);
+      });
+    }
+  document.field('files').val(files); // where file is multi value file type
+  sys.data.save(document);
 }
 ```
 
