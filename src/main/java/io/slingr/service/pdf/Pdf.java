@@ -321,11 +321,11 @@ public class Pdf extends Service {
                     PDFRenderer pdfRenderer = new PDFRenderer(document);
                     for (int page = 0; page < document.getNumberOfPages(); ++page) {
                         BufferedImage bim = pdfRenderer.renderImageWithDPI(page, dpi, ImageType.RGB);
-                        File tempFile = File.createTempFile("image-pdf", ".jpeg");
+                        File tempFile = File.createTempFile("image-pdf", "."+format.toLowerCase());
                         ImageIO.write(bim, format, tempFile);
                         FileInputStream in = new FileInputStream(tempFile);
                         String fileName = tempFile.getName();
-                        Json response = files().upload(fileName, in, "image/jpeg");
+                        Json response = files().upload(fileName, in, "image/"+format.toLowerCase());
                         ids.add(response.string("fileId"));
                         in.close();
                         tempFile.delete();
@@ -379,11 +379,11 @@ public class Pdf extends Service {
                 PDFRenderer pdfRenderer = new PDFRenderer(document);
                 for (int page = 0; page < document.getNumberOfPages(); ++page) {
                     BufferedImage bim = pdfRenderer.renderImageWithDPI(page, dpi, ImageType.RGB);
-                    File tempFile = File.createTempFile("image-pdf", ".jpeg");
+                    File tempFile = File.createTempFile("image-pdf", "."+format.toLowerCase());
                     ImageIO.write(bim, format, tempFile);
                     FileInputStream in = new FileInputStream(tempFile);
                     String fileName = tempFile.getName();
-                    Json response = files().upload(fileName, in, "image/jpeg");
+                    Json response = files().upload(fileName, in, "image/"+format.toLowerCase());
                     ids.add(response.string("fileId"));
                     in.close();
                     tempFile.delete();
