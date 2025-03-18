@@ -71,7 +71,7 @@ You can set specific properties in document.
 
 Generated PDF is returned as a file structure.
 
-```json lines
+```json
 {
   status: "ok",
   file: {
@@ -93,7 +93,6 @@ var tpl  = "<html>";
     tpl += "</#list>";
     tpl += "</body>";   
     tpl += "</html>";
-
 var data = {
     title: "Example PDF",
     items: [
@@ -105,7 +104,6 @@ var data = {
         }
     ]
 };
-
 var headerTemplate = "<!DOCTYPE html>"+
                      "  <html>"+
                      "    <head></head>"+
@@ -139,18 +137,21 @@ var settings = {
     footerData: footerData
 };
 
-var res = svc.pdf.generatePdf({template: tpl, data: data, settings: settings, callbackData: { record: record }}, {
+svc.pdf.generatePdf({template: tpl, data: data, settings: settings, callbackData: { record: record }}, {
     pdfResponse: function(res, resData){
         var data = res.data;
         var document = resData.record;
         if(data && data.status == "ok"){
           document.field('name').val(data.file.fileName);
+          const fileId = data.file.fileId;
           document.field('file').val({
-            id: data.file.fileId, 
+            id: fileId, 
             name: data.file.fileName,
             contentType: data.file.contentType
           });
+          sys.logs.debug(sys.files.share(fileId)+'?download=false');
           sys.data.save(document);
+
         }
       }
 });
