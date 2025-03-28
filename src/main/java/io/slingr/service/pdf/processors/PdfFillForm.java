@@ -44,7 +44,7 @@ public class PdfFillForm {
         File tmp;
         try {
             appLogger.info(String.format("Downloading form [%s]", pdfFileId));
-            is = files.download(pdfFileId).getFile();
+            is = files.download(pdfFileId).file();
             appLogger.info(String.format("Done downloading form [%s]", pdfFileId));
             tmp = File.createTempFile("pdf-filled-" + new Date().getTime(), ".pdf");
             PdfWriter desPdf = new PdfWriter(tmp);
@@ -69,7 +69,7 @@ public class PdfFillForm {
                                         InputStream fontIs = null;
                                         try {
                                             appLogger.info(String.format("Downloading font [%s]", fontFileId));
-                                            fontIs = files.download(fontFileId).getFile();
+                                            fontIs = files.download(fontFileId).file();
                                             File tmpFont = File.createTempFile("font", ".ttf");
                                             FileUtils.copyInputStreamToFile(fontIs, tmpFont);
                                             font = tmpFont.getPath();
