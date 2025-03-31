@@ -38,15 +38,15 @@ public class ReplaceHeaderAndFooterWorker extends PdfWorker {
         if (header != null && header.string(IMAGE_ID) != null || footer != null && footer.string(IMAGE_ID) != null) {
             InputStream headerIs = null;
             if (Objects.requireNonNull(header).string(IMAGE_ID) != null) {
-                headerIs = files.download(header.string(IMAGE_ID)).getFile();
+                headerIs = files.download(header.string(IMAGE_ID)).file();
             }
             InputStream footerIs = null;
             if (footer.string(IMAGE_ID) != null) {
-                footerIs = files.download(footer.string(IMAGE_ID)).getFile();
+                footerIs = files.download(footer.string(IMAGE_ID)).file();
             }
-            generatedFilePath = handler.replaceHeaderAndFooterFromImages(pdf.getFile(), headerIs, footerIs, settings);
+            generatedFilePath = handler.replaceHeaderAndFooterFromImages(pdf.file(), headerIs, footerIs, settings);
         } else if (header != null && header.string(HTML) != null || footer != null && footer.string(HTML) != null) {
-            generatedFilePath = handler.replaceHeaderAndFooterFromTemplate(pdf.getFile(), settings);
+            generatedFilePath = handler.replaceHeaderAndFooterFromTemplate(pdf.file(), settings);
         }
         if (generatedFilePath != null) {
             InputStream is = null;

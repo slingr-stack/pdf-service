@@ -36,7 +36,7 @@ public class AddImagesWorker extends PdfImageWorker {
         String fileId = data.string("fileId");
         Json res = Json.map();
         try {
-            InputStream is = files.download(fileId).getFile();
+            InputStream is = files.download(fileId).file();
             PDDocument pdf = Loader.loadPDF(new RandomAccessReadBuffer(is));
             Json settings = data.json("settings");
             if (settings.contains("images")) {
@@ -48,7 +48,7 @@ public class AddImagesWorker extends PdfImageWorker {
                             String imageId = image.string("fileId");
                             PDPage page = pdf.getPage(pageIndex);
                             DownloadedFile downloadedFile = files.download(imageId);
-                            InputStream imageIs = downloadedFile.getFile();
+                            InputStream imageIs = downloadedFile.file();
                             Json imageMetadata = files.metadata(imageId);
                             String extension = ".jpg";
                             if (imageMetadata.contains("contentType") && imageMetadata.string("contentType").equals("image/png")) {

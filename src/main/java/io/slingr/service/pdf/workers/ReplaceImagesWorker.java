@@ -31,7 +31,7 @@ public class ReplaceImagesWorker extends PdfImageWorker {
         Json res = Json.map();
         try {
             if (data.contains("settings")) {
-                InputStream is = files.download(fileId).getFile();
+                InputStream is = files.download(fileId).file();
                 PDDocument pdf = Loader.loadPDF(new RandomAccessReadBuffer(is));
                 Json settings = data.json("settings");
                 if (settings.contains("images")) {

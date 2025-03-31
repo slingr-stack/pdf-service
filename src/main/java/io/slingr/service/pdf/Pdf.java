@@ -220,7 +220,7 @@ public class Pdf extends Service {
         DownloadedFile file = restClient.download();
         byte[] fileContent;
         try {
-            fileContent = file.getFile().readAllBytes();
+            fileContent = file.file().readAllBytes();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -236,7 +236,7 @@ public class Pdf extends Service {
     private static File downloadImageToTmp(String imageUrl) {
         RestClient restClient = RestClient.builder(imageUrl);
         DownloadedFile file = restClient.download();
-        return FilesUtils.copyInputStreamToTemporaryFile("", file.getFile());
+        return FilesUtils.copyInputStreamToTemporaryFile("", file.file());
     }
 
     @ServiceFunction(name = "mergeDocuments")
@@ -317,7 +317,7 @@ public class Pdf extends Service {
                 List<String> ids = new ArrayList<>();
                 try {
                     logger.info("Converting pdf to images");
-                    PDDocument document = Loader.loadPDF(new RandomAccessReadBuffer(file.getFile()));
+                    PDDocument document = Loader.loadPDF(new RandomAccessReadBuffer(file.file()));
                     PDFRenderer pdfRenderer = new PDFRenderer(document);
                     for (int page = 0; page < document.getNumberOfPages(); ++page) {
                         BufferedImage bim = pdfRenderer.renderImageWithDPI(page, dpi, ImageType.RGB);
@@ -375,7 +375,7 @@ public class Pdf extends Service {
             List<String> ids = new ArrayList<>();
             try {
                 logger.info("Converting pdf to images");
-                PDDocument document = Loader.loadPDF(new RandomAccessReadBuffer(file.getFile()));
+                PDDocument document = Loader.loadPDF(new RandomAccessReadBuffer(file.file()));
                 PDFRenderer pdfRenderer = new PDFRenderer(document);
                 for (int page = 0; page < document.getNumberOfPages(); ++page) {
                     BufferedImage bim = pdfRenderer.renderImageWithDPI(page, dpi, ImageType.RGB);
@@ -413,7 +413,7 @@ public class Pdf extends Service {
         PDDocument pdf = null;
         try {
             try {
-                downloadedFile = files().download(fileId).getFile();
+                downloadedFile = files().download(fileId).file();
                 if (downloadedFile == null) {
                     appLogs.error("Cannot convert PDF, empty file.");
                     logger.error("Cannot convert pdf, empty file.");

@@ -48,7 +48,7 @@ public class MergeDocumentsWorker extends PdfWorker {
                     Json doc = (Json) d;
                     String fileId = doc.string("file");
                     DownloadedFile downloadedFile = files.download(fileId);
-                    InputStream is = downloadedFile.getFile();
+                    InputStream is = downloadedFile.file();
                     PDDocument pdf = Loader.loadPDF(new RandomAccessReadBuffer(is));
                     List<PDDocument> splitDoc = splitter.split(pdf);
                     int i = 1;

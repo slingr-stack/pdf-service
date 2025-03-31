@@ -42,7 +42,7 @@ public abstract class PdfImageWorker extends PdfWorker {
                 if (imageMetadata.contains("contentType") && imageMetadata.string("contentType").equals("image/png")) {
                     extension = ".png";
                 }
-                InputStream imageIs = files.download(imageId).getFile();
+                InputStream imageIs = files.download(imageId).file();
                 File img = File.createTempFile("pdf-img-" + UUID.randomUUID(), extension);
                 copyInputStreamToFile(imageIs, img);
                 PDResources resources = pdf.getPage(0).getResources();

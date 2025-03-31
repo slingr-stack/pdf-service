@@ -45,7 +45,7 @@ public class SplitDocumentWorker extends PdfWorker {
             List<File> documents = new ArrayList<>();
             PDFMergerUtility merger = new PDFMergerUtility();
             Splitter splitter = new Splitter();
-            InputStream is = files.download(fileId).getFile();
+            InputStream is = files.download(fileId).file();
             PDDocument pdf = Loader.loadPDF(new RandomAccessReadBuffer(is));
             List<PDDocument> splitDoc = splitter.split(pdf);
             if (!splitDoc.isEmpty()) {
