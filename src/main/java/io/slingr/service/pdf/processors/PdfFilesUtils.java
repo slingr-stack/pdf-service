@@ -22,24 +22,17 @@ public class PdfFilesUtils {
     }
 
     public File createTempScript() throws IOException {
-        //log to read distro
-        Process p = Runtime.getRuntime().exec(new String[]{ "bash", "-c", "cat /etc/os-release" });
-        BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
-        String line;
-        while((line = reader.readLine()) != null) {
-            System.out.println("[HOST OS] " + line);
-        }
-        reader.close();
         File tempScript = File.createTempFile("script", null);
         Writer streamWriter = new OutputStreamWriter(new FileOutputStream(tempScript));
         PrintWriter printWriter = new PrintWriter(streamWriter);
         printWriter.println("#!/bin/bash");
         printWriter.println("set -e");
         printWriter.println("apt-get update -y");
-        printWriter.println("apt-get install -y xvfb libfontconfig libxrender1 wget ca-certificates");
-        printWriter.println("wget -q https://archive.ubuntu.com/ubuntu/pool/main/o/openssl1.0/libssl1.0.0_1.0.2n-1ubuntu5.9_amd64.deb");
-        printWriter.println("dpkg -i libssl1.0.0_1.0.2n-1ubuntu5.9_amd64.deb");
-        printWriter.println("rm libssl1.0.0_1.0.2n-1ubuntu5.9_amd64.deb");
+        printWriter.println("apt-get install -y \\");
+        printWriter.println("  xvfb \\");
+        printWriter.println("  libfontconfig1 libfreetype6 libx11-6 libxext6 libxrender1 \\");
+        printWriter.println("  xfonts-base xfonts-75dpi xfonts-100dpi \\");
+        printWriter.println("  libssl1.1 ca-certificates");
         printWriter.close();
         return tempScript;
     }
