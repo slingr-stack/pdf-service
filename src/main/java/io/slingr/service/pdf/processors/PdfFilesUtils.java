@@ -26,12 +26,12 @@ public class PdfFilesUtils {
         Writer streamWriter = new OutputStreamWriter(new FileOutputStream(tempScript));
         PrintWriter printWriter = new PrintWriter(streamWriter);
         printWriter.println("#!/bin/bash");
-        printWriter.println("apt-get update -y && apt-get install -y xvfb libfontconfig libxrender1");
-        printWriter.println(
-                "apt-get update -y && \\\n" +
-                "apt-get install -y xvfb libfontconfig libxrender1 libssl1.1 libssl-dev && \\\n" +
-                "rm -rf /var/lib/apt/lists/*"
-        );
+        printWriter.println("set -e");
+        printWriter.println("apt-get update -y");
+        printWriter.println("apt-get install -y xvfb libfontconfig libxrender1");
+        printWriter.println("wget -q https://archive.ubuntu.com/ubuntu/pool/main/o/openssl1.0/libssl1.0.0_1.0.2n-1ubuntu5.9_amd64.deb");
+        printWriter.println("dpkg -i libssl1.0.0_1.0.2n-1ubuntu5.9_amd64.deb");
+        printWriter.println("rm libssl1.0.0_1.0.2n-1ubuntu5.9_amd64.deb");
         printWriter.close();
         return tempScript;
     }
