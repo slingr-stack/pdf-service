@@ -28,7 +28,7 @@ public class PdfFilesUtils {
         printWriter.println("#!/bin/bash");
         printWriter.println("set -e");
         printWriter.println("apt-get update -y");
-        printWriter.println("apt-get install -y xvfb libfontconfig libxrender1");
+        printWriter.println("apt-get install -y xvfb libfontconfig libxrender1 wget ca-certificates");
         printWriter.println("wget -q https://archive.ubuntu.com/ubuntu/pool/main/o/openssl1.0/libssl1.0.0_1.0.2n-1ubuntu5.9_amd64.deb");
         printWriter.println("dpkg -i libssl1.0.0_1.0.2n-1ubuntu5.9_amd64.deb");
         printWriter.println("rm libssl1.0.0_1.0.2n-1ubuntu5.9_amd64.deb");
