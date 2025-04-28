@@ -22,6 +22,14 @@ public class PdfFilesUtils {
     }
 
     public File createTempScript() throws IOException {
+        //log to read distro
+        Process p = Runtime.getRuntime().exec(new String[]{ "bash", "-c", "cat /etc/os-release" });
+        BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
+        String line;
+        while((line = reader.readLine()) != null) {
+            System.out.println("[HOST OS] " + line);
+        }
+        reader.close();
         File tempScript = File.createTempFile("script", null);
         Writer streamWriter = new OutputStreamWriter(new FileOutputStream(tempScript));
         PrintWriter printWriter = new PrintWriter(streamWriter);
