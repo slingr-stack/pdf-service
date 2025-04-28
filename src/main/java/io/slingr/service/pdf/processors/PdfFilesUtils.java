@@ -27,6 +27,11 @@ public class PdfFilesUtils {
         PrintWriter printWriter = new PrintWriter(streamWriter);
         printWriter.println("#!/bin/bash");
         printWriter.println("apt-get update -y && apt-get install -y xvfb libfontconfig libxrender1");
+        printWriter.println(
+                "apt-get update -y && \\\n" +
+                "apt-get install -y xvfb libfontconfig libxrender1 libssl1.1 libssl-dev && \\\n" +
+                "rm -rf /var/lib/apt/lists/*"
+        );
         printWriter.close();
         return tempScript;
     }
