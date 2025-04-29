@@ -27,12 +27,13 @@ public class PdfFilesUtils {
         PrintWriter printWriter = new PrintWriter(streamWriter);
         printWriter.println("#!/bin/bash");
         printWriter.println("set -e");
-        printWriter.println("apt-get update -y");
+        /*printWriter.println("apt-get update -y");
         printWriter.println("apt-get install -y \\");
         printWriter.println("  xvfb \\");
         printWriter.println("  libfontconfig1 libfreetype6 libx11-6 libxext6 libxrender1 \\");
         printWriter.println("  xfonts-base xfonts-75dpi xfonts-100dpi \\");
-        printWriter.println("  libssl1.1 ca-certificates");
+        printWriter.println("  libssl1.1 ca-certificates");*/
+        printWriter.println("apt-get update -y && apt-get install -y xvfb libfontconfig libxrender1 libssl1.1 ca-certificates");
         printWriter.close();
         return tempScript;
     }
