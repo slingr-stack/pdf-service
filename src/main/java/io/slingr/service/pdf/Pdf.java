@@ -85,7 +85,7 @@ public class Pdf extends Service {
             while (QueuePdf.getStreamInstance().getTotalSize() > 0) {
                 createPdf(QueuePdf.getStreamInstance().poll());
             }
-        }, 0, 3, TimeUnit.SECONDS);
+        }, 0, 100, TimeUnit.MILLISECONDS);
         logger.debug(String.format("Properties [%s] for service [%s]", properties.toPrettyString(), SERVICE_NAME));
         logger.info(String.format("Configured service [%s]: maxThreadPool - [%s], forceDownloadImages - [%b]", SERVICE_NAME,  maxThreadPool, downloadImages));
     }
