@@ -32,7 +32,7 @@
     <build.main-class>io.slingr.service.pdf.Runner</build.main-class>
     <jsoup.version>1.17.2</jsoup.version>
     <itext.version>8.0.2</itext.version>
-    <slingr.slingr-service.version>1.6.6</slingr.slingr-service.version>
+    <slingr.slingr-service.version>1.6.5</slingr.slingr-service.version>
     <freemarker.version>2.3.32</freemarker.version>
   </properties>
 </project>
