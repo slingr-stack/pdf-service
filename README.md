@@ -197,6 +197,11 @@ Given a PDF file and an interval return a list of PDF files divided.
  
 **interval:** indicates every how many pages we will split the document. For example, if it is 1, then every page will become a new file.
 
+**startPage:** indicates in which page index we will start splitting the document. For example, if it is 30, then we will split from page 31. Default: 0
+
+**endPage:** indicates in which page index we will stop splitting the document. For example, if it is 59, then we will split until page 60. Default: document size.
+
+**filePrefix:** indicates every how many pages we will split the document. For example, if it is 1, then every page will become a new file. Default: "split-doc-"
 
 ```js
 svc.pdf.splitDocument({ fileId: '5ad8a06ca0be513068b65dee', interval: 2, callbackData: { record: record }, callbacks: {
