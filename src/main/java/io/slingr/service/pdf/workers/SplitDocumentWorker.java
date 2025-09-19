@@ -35,12 +35,30 @@ public class SplitDocumentWorker extends PdfWorker {
     public void run() {
         Json data = request.getJsonParams();
         String fileId = data.string("fileId");
+        String filePrefix = data.string("filePrefix");
         Integer interval = data.integer("interval");
+        Integer startPage = data.integer("startPage");
+        Integer endPage = data.integer("endPage");
+
         if (StringUtils.isBlank(fileId)) {
             throw ServiceException.permanent(ErrorCode.ARGUMENT, "File id can not be empty.");
         } else if (interval == null || interval <= 0) {
             throw ServiceException.permanent(ErrorCode.ARGUMENT, "Interval can not be empty. Should be a positive integer.");
         }
+
+        if (startPage == null) {
+            startPage = 0;
+        }
+        if (StringUtils.isBlank(filePrefix)) {
+            filePrefix = "split-doc-";
+        }
+
+        if (startPage < 0 || (endPage != null && endPage < 0)) {
+            throw ServiceException.permanent(ErrorCode.ARGUMENT, "Start Page and End Page should be a positive integer.");
+        } else if (endPage != null && endPage < startPage) {
+            throw ServiceException.permanent(ErrorCode.ARGUMENT, "End Page should be greater than Start Page.");
+        }
+
         try {
             List<File> documents = new ArrayList<>();
             PDFMergerUtility merger = new PDFMergerUtility();
@@ -49,7 +67,10 @@ public class SplitDocumentWorker extends PdfWorker {
             PDDocument pdf = Loader.loadPDF(new RandomAccessReadBuffer(is));
             List<PDDocument> splitDoc = splitter.split(pdf);
             if (!splitDoc.isEmpty()) {
-                for (int i = 0; i < splitDoc.size(); i += interval) {
+                if (endPage == null) {
+                    endPage = splitDoc.size();
+                }
+                for (int i = startPage; i < endPage; i += interval) {
                     int end = Math.min(i + interval, splitDoc.size());
                     List<PDDocument> sp = splitDoc.subList(i, end);
                     PDDocument newDocument = new PDDocument();
@@ -58,7 +79,7 @@ public class SplitDocumentWorker extends PdfWorker {
                         page.close();
                     }
                     int number = i / interval;
-                    File temp = File.createTempFile("split-doc-" + number, ".pdf");
+                    File temp = File.createTempFile(filePrefix + number, ".pdf");
                     newDocument.save(temp);
                     newDocument.close();
                     documents.add(temp);
