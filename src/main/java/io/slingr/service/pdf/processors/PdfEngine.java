@@ -94,7 +94,7 @@ public class PdfEngine {
             commandParams.add("--image-dpi");
             commandParams.add(Integer.toString(imageDpi));
         }
-        Integer imageQuality = settings.integer("imageDpi");
+        Integer imageQuality = settings.integer("imageQuality");
         if (imageQuality != null) {
             commandParams.add("--image-quality");
             commandParams.add(Integer.toString(imageQuality));
